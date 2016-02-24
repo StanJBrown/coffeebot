@@ -10,3 +10,13 @@ rosrun rviz rviz
 sudo apt-get install tos-indigo-husky-*
 roslaunch husky_base base.launch
 roslaunch husky_viz view_robot.launch
+
+--------------------------------------------------------
+-Install RTABMAP via source
+https://github.com/introlab/rtabmap_ros.
+Follow Steps 1,2,3.
+Sometimes an error may be encountered. Try running step 2: make -j4 and make install again. Then move to step 3.
+
+--------------------------------------------------------
+-Installing g20
+https://github.com/RainerKuemmerle/g2o

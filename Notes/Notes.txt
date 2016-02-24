@@ -1,0 +1,12 @@
+-To test if Kinect is running:
+sudo apt-get install ros-indigo-freenect-*
+roslaunch freenect_launch freenect.launch
+rosrun rviz rviz
+- Change Fixed Frame to optical depth image
+- Add a topic PointCloud2
+
+--------------------------------------------------------
+-To get the Husky moving
+sudo apt-get install tos-indigo-husky-*
+roslaunch husky_base base.launch
+roslaunch husky_viz view_robot.launch

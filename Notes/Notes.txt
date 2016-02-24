@@ -10,3 +10,10 @@ rosrun rviz rviz
 sudo apt-get install tos-indigo-husky-*
 roslaunch husky_base base.launch
 roslaunch husky_viz view_robot.launch
+
+roslaunch rtabmap_ros 
+
+
+-To get rtabmap demo running in rviz
+roslaunch rtabmap_ros demo_robot_mapping.launch rviz:=true rtabmapviz:=false
+rosbag play --clock demo_mapping.bag

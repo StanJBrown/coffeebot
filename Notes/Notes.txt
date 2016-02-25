@@ -34,3 +34,8 @@ roslaunch rtabmap_ros
 -To get rtabmap demo running in rviz
 roslaunch rtabmap_ros demo_robot_mapping.launch rviz:=true rtabmapviz:=false
 rosbag play --clock demo_mapping.bag
+
+--------------------------------------------------------
+Husky Logitech controller
+Toggle switch at the front of controller should be at 'X' and not 'D'
+Light next to Mode should be off.

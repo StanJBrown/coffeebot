@@ -5,7 +5,7 @@
 	<include file="$(find rtabmap_ros)/launch/rgbd_mapping.launch">
                 <arg name="rtabmap_args" value="--delete_db_on_start" />
 		<arg name="rviz" value="true" />
-                <arg name="rtabmapviz" value="false" />
+                <arg name="rtabmapviz" value="true" />
         </include>
         <include file="$(find husky_base)/launch/base.launch" />
 	<node pkg="tf" type="static_transform_publisher" name="kinect_tf_publisher" 

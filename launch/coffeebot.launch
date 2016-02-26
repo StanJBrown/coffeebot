@@ -1,6 +1,24 @@
 <launch>
 
+<arg name="wait_for_transform"      default="0.1"/>
 
+
+<arg name="frame_id"                default="camera_link"/>
+<arg name="visual_odometry"         default="false"/>  
+
+<arg name="odom_topic"              default="/odom"/>         <!-- Odometry topic used if visual_odometry is false -->
+
+<arg name="subscribe_scan"          default="false"/>         <!-- Assuming 2D scan if set, rtabmap will do 3DoF mapping instead of 6DoF -->
+  <arg name="scan_topic"              default="/scan"/>
+
+
+
+<arg name="database_path"           default="~/.ros/rtabmap.db"/>
+  <arg name="rtabmap_args"            default=""/>              <!-- delete_db_on_start, udebug -->
+  <arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
+
+<arg name="rtabmapviz"              default="true" /> 
+<arg name="rtabmapviz_cfg"          default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
 	 <arg name="rgb_topic"               default="/camera/rgb/image_rect_color" />
   <arg name="depth_registered_topic"  default="/camera/depth_registered/image_raw" />
   <arg name="camera_info_topic" default="/camera/rgb/camera_info" />
@@ -41,6 +59,26 @@
         <include file="$(find husky_base)/launch/base.launch" />
 	<node pkg="tf" type="static_transform_publisher" name="kinect_tf_publisher" 
 		args="0 0 0 0 0 0 base_link camera_link 100" />
+
+
+
+<!-- Visualisation RTAB-Map -->
+    <node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="$(arg rtabmapviz_cfg)" output="screen" launch-prefix="$(arg launch_prefix)">
+      <param name="subscribe_depth"     type="bool"   value="true"/>
+      <param name="subscribe_laserScan"      type="bool"   value="$(arg subscribe_scan)"/>
+      <param name="subscribe_odom_info" type="bool"   value="$(arg visual_odometry)"/>
+      <param name="frame_id"            type="string" value="$(arg frame_id)"/>
+      <param name="wait_for_transform_duration"  type="double"   value="$(arg wait_for_transform)"/>
+    
+      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+      <remap from="depth/image"     to="$(arg depth_registered_topic)"/>
+      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+      <remap from="scan"            to="$(arg scan_topic)"/>
+      <remap unless="$(arg visual_odometry)" from="odom"  to="$(arg odom_topic)"/>
+    </node>
+
+
+
 
 
 

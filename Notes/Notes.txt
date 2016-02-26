@@ -39,3 +39,11 @@ rosbag play --clock demo_mapping.bag
 Husky Logitech controller
 Toggle switch at the front of controller should be at 'X' and not 'D'
 Light next to Mode should be off.
+
+--------------------------------------------------------
+Hokuyo
+Run roscore if not already running
+rosrun hokuyo_node hokuyo_node
+rosrun rviz rviz -d 'rospack find hokuyo_node' /hokuyo_test.vcg
+Type in fixed frame /laser
+In Rviz Add by topic LaserScan

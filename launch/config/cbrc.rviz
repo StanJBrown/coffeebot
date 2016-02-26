@@ -222,6 +222,12 @@ Visualization Manager:
       Topic: /rtabmap/proj_map
       Value: true
     - Alpha: 1
+      Class: rviz/LaserScan
+      Enabled: true
+      Name: Map
+      Topic: /scan
+      Value: true
+    - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -302,7 +308,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: map
+    Fixed Frame: laser
     Frame Rate: 30
   Name: root
   Tools:

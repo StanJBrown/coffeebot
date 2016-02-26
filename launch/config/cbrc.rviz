@@ -224,7 +224,7 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz/LaserScan
       Enabled: true
-      Name: Map
+      Name: LaserScan
       Topic: /scan
       Value: true
     - Alpha: 1

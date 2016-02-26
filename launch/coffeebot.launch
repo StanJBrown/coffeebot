@@ -1,31 +1,35 @@
 <launch>
-
-<arg name="wait_for_transform"      default="0.1"/>
-
-
-<arg name="frame_id"                default="camera_link"/>
-<arg name="visual_odometry"         default="false"/>  
-
-<arg name="odom_topic"              default="/odom"/>         <!-- Odometry topic used if visual_odometry is false -->
-
-<arg name="subscribe_scan"          default="false"/>         <!-- Assuming 2D scan if set, rtabmap will do 3DoF mapping instead of 6DoF -->
-  <arg name="scan_topic"              default="/scan"/>
+	<!-- general arguments -->
+	<arg name="odom_topic"			default="/husky_velocity_controller/odom"/>         <!-- Odometry topic used if visual_odometry is false -->
 
 
+	<!-- rtabmap arguments -->
+	<arg name="wait_for_transform"		default="0.1"/>
+	<arg name="rtabmap_args"		default="delete_db_on_start"/>              <!-- delete_db_on_start, udebug -->
+	<arg name="visual_odometry"		default="false"/>  
+	<arg name="subscribe_scan"          default="false"/>         <!-- Assuming 2D scan is set, rtabmap will do 3DoF mapping instead of 6DoF -->
 
-<arg name="database_path"           default="~/.ros/rtabmap.db"/>
-  <arg name="rtabmap_args"            default=""/>              <!-- delete_db_on_start, udebug -->
-  <arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
+	<!-- rtabmapviz arguments -->
+	<arg name="rtabmapviz"			default="true" /> 
+	<arg name="rtabmapviz_cfg"		default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
 
-<arg name="rtabmapviz"              default="true" /> 
-<arg name="rtabmapviz_cfg"          default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
-	 <arg name="rgb_topic"               default="/camera/rgb/image_rect_color" />
-  <arg name="depth_registered_topic"  default="/camera/depth_registered/image_raw" />
-  <arg name="camera_info_topic" default="/camera/rgb/camera_info" />
+	<!-- rviz arguments -->
+	<arg name="rviz" 			default="true" />
+	<arg name="rviz_cfg" 			default="-d $(find coffeebot)/launch/config/cbrc.rviz" />
+	<arg name="frame_id"                default="camera_link"/>
 
-	<arg name="rviz" default="true" />
-	<arg name="rviz_cfg" default="-d $(find rtabmap_ros)/launch/config/rgbd.rviz" />
 
+	<arg name="scan_topic"              default="/scan"/>
+
+	<arg name="database_path"           default="~/.ros/rtabmap.db"/>
+	<arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
+
+	<arg name="rgb_topic"               default="/camera/rgb/image_rect_color" />
+	<arg name="depth_registered_topic"  default="/camera/depth_registered/image_raw" />
+	<arg name="camera_info_topic" default="/camera/rgb/camera_info" />
+
+
+	<!-- Start launching things-->
 	<include file="$(find freenect_launch)/launch/freenect.launch">
 		<arg name="depth_registration" value="true" />
 	</include>
@@ -37,15 +41,18 @@
         </include>
 	-->
 	<group ns="rtabmap">
+		
+		<!-- remaps for rtabmap nodes -->
+		<remap from="rgb/image"       to="$(arg rgb_topic)"/>
+		<remap from="depth/image"     to="$(arg depth_registered_topic)"/>
+		<remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+
+
+		<!-- start the rtabmap node -->
 		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
 			<param name="rviz" type="string" value="true" />
-			<param name="frame_id" type="string" value="camera_link" />
+			<param name="frame_id" type="string" value="$(arg frame_id)" />
 			<param name="subscribe_depth" type="bool" value="true" />
-			<remap from="odom" to="/husky_velocity_controller/odom" />
-			<remap from="rgb/image" to="/camera/rgb/image_rect_color"/>
-			<remap from="depth/image" to="/camera/depth_registered/image_raw"/>
-			<remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
-
 			<param name="queue_size" type="int" value="10"/>
 
 			<!-- RTAB-Map's parameters -->
@@ -54,57 +61,51 @@
 			<param name="Rtabmap/TimeThr" type="string" value="700"/>
 			<param name="Mem/RehearsalSimilarity" type="string" value="0.45"/>
 			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/>
+
+			<remap from="odom" to="$(arg odom_topic)" />
+		</node>
+	
+		<!-- Visualization rtabmapviz -->
+		<node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="$(arg rtabmapviz_cfg)" output="screen" launch-prefix="$(arg launch_prefix)">
+			<param name="subscribe_depth"     type="bool"   value="true"/>
+			<param name="subscribe_laserScan"      type="bool"   value="$(arg subscribe_scan)"/>
+			<param name="subscribe_odom_info" type="bool"   value="$(arg visual_odometry)"/>
+			<param name="frame_id"            type="string" value="$(arg frame_id)"/>
+			<param name="wait_for_transform_duration"  type="double"   value="$(arg wait_for_transform)"/>
+	    
+			<!--<remap from="scan"            to="$(arg scan_topic)"/>-->
+			<remap unless="$(arg visual_odometry)" from="odom"  to="$(arg odom_topic)"/>
+		</node>
+
+		<!-- Visualization RVIZ -->
+		<node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="$(arg rviz_cfg)"/>
+		<!-- sync cloud with odometry and voxelize the point cloud (for fast visualization in rviz) -->
+		<node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
+		<node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="data_odom_sync" args="load rtabmap_ros/data_odom_sync standalone_nodelet">
+			<remap from="rgb/image_in"        to="$(arg rgb_topic)"/>
+			<remap from="depth/image_in"      to="$(arg depth_registered_topic)"/>
+			<remap from="rgb/camera_info_in"  to="$(arg camera_info_topic)"/>
+			<remap if="$(arg visual_odometry)"     from="odom_in"  to="rtabmap/odom"/>
+			<remap unless="$(arg visual_odometry)" from="odom_in"  to="$(arg odom_topic)"/>
+			<remap from="rgb/image_out"       to="data_odom_sync/image"/>
+			<remap from="depth/image_out"     to="data_odom_sync/depth"/>
+			<remap from="rgb/camera_info_out" to="data_odom_sync/camera_info"/>
+			<remap from="odom_out"            to="odom_sync"/>
+		</node>
+		<node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load rtabmap_ros/point_cloud_xyzrgb standalone_nodelet">
+			<remap from="rgb/image"       to="data_odom_sync/image"/>
+			<remap from="depth/image"     to="data_odom_sync/depth"/>
+			<remap from="rgb/camera_info" to="data_odom_sync/camera_info"/>
+			<remap from="cloud"           to="voxel_cloud" />
+
+			<param name="decimation" type="double" value="2"/>
+			<param name="voxel_size" type="double" value="0.02"/>
 		</node>
 	</group>
-        <include file="$(find husky_base)/launch/base.launch" />
+
+	<!-- Launch husky base and attach kinect to husky using a tf -->
+	<include file="$(find husky_base)/launch/base.launch" />
 	<node pkg="tf" type="static_transform_publisher" name="kinect_tf_publisher" 
-		args="0 0 0 0 0 0 base_link camera_link 100" />
+		args="-0.6 0 0.8 0 0 0 user_rail_link camera_link 100" />
 
-
-
-<!-- Visualisation RTAB-Map -->
-    <node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="$(arg rtabmapviz_cfg)" output="screen" launch-prefix="$(arg launch_prefix)">
-      <param name="subscribe_depth"     type="bool"   value="true"/>
-      <param name="subscribe_laserScan"      type="bool"   value="$(arg subscribe_scan)"/>
-      <param name="subscribe_odom_info" type="bool"   value="$(arg visual_odometry)"/>
-      <param name="frame_id"            type="string" value="$(arg frame_id)"/>
-      <param name="wait_for_transform_duration"  type="double"   value="$(arg wait_for_transform)"/>
-    
-      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
-      <remap from="depth/image"     to="$(arg depth_registered_topic)"/>
-      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
-      <remap from="scan"            to="$(arg scan_topic)"/>
-      <remap unless="$(arg visual_odometry)" from="odom"  to="$(arg odom_topic)"/>
-    </node>
-
-
-
-
-
-
-	<!-- Visualization RVIZ -->
-  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="$(arg rviz_cfg)"/>
-  <!-- sync cloud with odometry and voxelize the point cloud (for fast visualization in rviz) -->
-  <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
-  <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="data_odom_sync" args="load rtabmap_ros/data_odom_sync standalone_nodelet">
-    <remap from="rgb/image_in"        to="$(arg rgb_topic)"/>
-    <remap from="depth/image_in"      to="$(arg depth_registered_topic)"/>
-    <remap from="rgb/camera_info_in"  to="$(arg camera_info_topic)"/>
-    <!--<remap if="$(arg visual_odometry)"     from="odom_in"  to="rtabmap/odom"/>
-    <remap unless="$(arg visual_odometry)" from="odom_in"  to="$(arg odom_topic)"/>
-    -->
-    <remap from="rgb/image_out"       to="data_odom_sync/image"/>
-    <remap from="depth/image_out"     to="data_odom_sync/depth"/>
-    <remap from="rgb/camera_info_out" to="data_odom_sync/camera_info"/>
-    <remap from="odom_out"            to="odom_sync"/>
-  </node>
-  <node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load rtabmap_ros/point_cloud_xyzrgb standalone_nodelet">
-    <remap from="rgb/image"       to="data_odom_sync/image"/>
-    <remap from="depth/image"     to="data_odom_sync/depth"/>
-    <remap from="rgb/camera_info" to="data_odom_sync/camera_info"/>
-    <remap from="cloud"           to="voxel_cloud" />
-
-    <param name="decimation" type="double" value="2"/>
-    <param name="voxel_size" type="double" value="0.02"/>
-  </node>
 </launch>

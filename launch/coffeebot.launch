@@ -1,17 +1,16 @@
 <launch>
 	<!-- general arguments -->
-	<arg name="odom_topic"			default="/husky_velocity_controller/odom"/>         <!-- Odometry topic used if visual_odometry is false -->
-
+	<arg name="odom_topic" default="/husky_velocity_controller/odom"/> 
+	<arg name="use_laser_scanner" default="false" />
 
 	<!-- rtabmap arguments -->
-	<arg name="wait_for_transform"		default="0.1"/>
-	<arg name="rtabmap_args"		default="delete_db_on_start"/>              <!-- delete_db_on_start, udebug -->
+	<arg name="wait_for_transform" default="0.1"/>
+	<arg name="rtabmap_args" default="delete_db_on_start"/>  <!-- delete_db_on_start, udebug -->
 	<arg name="visual_odometry"		default="false"/>  
-	<arg name="subscribe_scan"		default="false"/>         <!-- Assuming 2D scan is set, rtabmap will do 3DoF mapping instead of 6DoF -->
 
 	<!-- rtabmapviz arguments -->
-	<arg name="rtabmapviz"			default="true" /> 
-	<arg name="rtabmapviz_cfg"		default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
+	<arg name="rtabmapviz" default="true" /> 
+	<arg name="rtabmapviz_cfg" default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
 
 	<!-- rviz arguments -->
 	<arg name="rviz" 			default="true" />
@@ -20,7 +19,6 @@
 	<arg name="scan_topic"              default="/scan"/>
 
 	<arg name="database_path"           default="~/.ros/rtabmap.db"/>
-	<arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
 
 	<arg name="rgb_topic"               default="/camera/rgb/image_rect_color" />
 	<arg name="depth_registered_topic"  default="/camera/depth_registered/image_raw" />
@@ -32,7 +30,7 @@
 		<arg name="depth_registration" value="true" />
 	</include>
 
-	<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen" >
+	<node if="$(arg use_laser_scanner)" name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen" >
 		<param name="calibrate_time" type="bool" value="true" />
 		<param name="port" type="string" value="/dev/ttyACM0"/>
 	</node>
@@ -47,11 +45,11 @@
 
 		<!-- start the rtabmap node -->
 		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
-			<param name="rviz" type="string" value="true" />
 			<param name="frame_id" type="string" value="$(arg frame_id)" />
-			<param name="subscribe_depth" type="bool" value="true" />
 			<param name="queue_size" type="int" value="10"/>
-
+			<param name="subscribe_depth" type="bool" value="true" />
+			<param name="subscribe_laserScan" type="bool" value="$(arg use_laser_scanner)" />
+			
 			<!-- RTAB-Map's parameters -->
 			<param name="RGBD/AngularUpdate" type="string" value="0.01"/>
 			<param name="RGBD/LinearUpdate" type="string" value="0.01"/>
@@ -63,12 +61,12 @@
 		</node>
 	
 		<!-- Visualization rtabmapviz -->
-		<node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="$(arg rtabmapviz_cfg)" output="screen" launch-prefix="$(arg launch_prefix)">
-			<param name="subscribe_depth"     type="bool"   value="true"/>
-			<param name="subscribe_laserScan"      type="bool"   value="$(arg subscribe_scan)"/>
-			<param name="subscribe_odom_info" type="bool"   value="$(arg visual_odometry)"/>
-			<param name="frame_id"            type="string" value="$(arg frame_id)"/>
-			<param name="wait_for_transform_duration"  type="double"   value="$(arg wait_for_transform)"/>
+		<node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="$(arg rtabmapviz_cfg)" output="screen">
+			<param name="subscribe_depth" type="bool" value="true"/>
+			<param name="subscribe_laserScan" type="bool" value="$(arg use_laser_scanner)"/>
+			<param name="subscribe_odom_info" type="bool" value="$(arg visual_odometry)"/>
+			<param name="frame_id" type="string" value="$(arg frame_id)"/>
+			<param name="wait_for_transform_duration" type="double" value="$(arg wait_for_transform)"/>
 	    
 			<!--<remap from="scan"            to="$(arg scan_topic)"/>-->
 			<remap unless="$(arg visual_odometry)" from="odom"  to="$(arg odom_topic)"/>
@@ -102,8 +100,8 @@
 
 	<!-- Launch husky base and attach kinect and laser to the husky using tf publishers -->
 	<include file="$(find husky_base)/launch/base.launch" />
-	<node pkg="tf" type="static_transform_publisher" name="kinect_tf_publisher" 
-		args="-0.5 0 0.8 0 0 0 user_rail_link camera_link 100" />
-	<node pkg="tf" type="static_transform_publisher" name="lidar_tf_publisher" 
-		args="-0.5 0 0.5 0 0 0 user_rail_link laser 100" />
+	<node pkg="tf" type="static_transform_publisher" 
+		name="kinect_tf_publisher" args="-0.5 0 0.8 0 0 0 user_rail_link camera_link 100" />
+	<node if="$(arg use_laser_scanner)" pkg="tf" type="static_transform_publisher" 
+		name="laser_tf_publisher" args="-0.5 0 0.5 0 0 0 user_rail_link laser 100" />
 </launch>

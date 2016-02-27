@@ -106,6 +106,8 @@ Visualization Manager:
           Value: true
         inertial_link:
           Value: true
+        laser:
+          Value: true
         map:
           Value: true
         odom:
@@ -129,38 +131,41 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
-          odom:
-            base_link:
-              base_footprint:
+          {}
+        odom:
+          base_link:
+            base_footprint:
+              {}
+            front_bumper_link:
+              {}
+            front_left_wheel_link:
+              {}
+            front_right_wheel_link:
+              {}
+            imu_link:
+              {}
+            inertial_link:
+              {}
+            rear_bumper_link:
+              {}
+            rear_left_wheel_link:
+              {}
+            rear_right_wheel_link:
+              {}
+            top_chassis_link:
+              {}
+            top_plate_link:
+              {}
+            user_rail_link:
+              camera_link:
+                camera_depth_frame:
+                  camera_depth_optical_frame:
+                    {}
+                camera_rgb_frame:
+                  camera_rgb_optical_frame:
+                    {}
+              laser:
                 {}
-              front_bumper_link:
-                {}
-              front_left_wheel_link:
-                {}
-              front_right_wheel_link:
-                {}
-              imu_link:
-                {}
-              inertial_link:
-                {}
-              rear_bumper_link:
-                {}
-              rear_left_wheel_link:
-                {}
-              rear_right_wheel_link:
-                {}
-              top_chassis_link:
-                {}
-              top_plate_link:
-                {}
-              user_rail_link:
-                camera_link:
-                  camera_depth_frame:
-                    camera_depth_optical_frame:
-                      {}
-                  camera_rgb_frame:
-                    camera_rgb_optical_frame:
-                      {}
       Update Interval: 0
       Value: true
     - Class: rviz/Image
@@ -222,10 +227,33 @@ Visualization Manager:
       Topic: /rtabmap/proj_map
       Value: true
     - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
       Class: rviz/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: ""
+      Decay Time: 0
       Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
       Name: LaserScan
+      Position Transformer: ""
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
       Topic: /scan
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -308,7 +336,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: laser
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -325,7 +353,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.35253
+      Distance: 10.4121
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -337,10 +365,10 @@ Visualization Manager:
         Z: -1.13136
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.599797
+      Pitch: 0.699797
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 3.95916
+      Yaw: 3.52416
     Saved: ~
 Window Geometry:
   Displays:

@@ -59,3 +59,15 @@ Add firefly to udev rules
 Create a file in /etc/udev/rules.d/99-pointgrey.rules
 Add the following line:
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1e10", ATTRS{idProduct}=="2002", GROUP="plugdev", SYMLINK+="firefly", MODE="0666"
+
+--------------------------------------------------------
+Display floorplan
+Create a yaml file. Example shown below
+image: <path to file>
+resolution: 0.1
+origin: [0.0, 0.0, 0.0]
+occupied_thresh: 0.65
+free_thresh: 0.196
+negate: 0
+run:
+rosrun map_server map_server <name of yaml file>

@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Info1
-        - /RobotModel1
+        - /MapGraph1
       Splitter Ratio: 0.667464
     Tree Height: 588
   - Class: rviz/Selection
@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -98,25 +98,11 @@ Visualization Manager:
           Value: true
         front_bumper_link:
           Value: true
-        front_left_wheel_link:
-          Value: true
-        front_right_wheel_link:
-          Value: true
         imu_link:
           Value: true
         inertial_link:
           Value: true
-        laser:
-          Value: true
-        map:
-          Value: true
-        odom:
-          Value: true
         rear_bumper_link:
-          Value: true
-        rear_left_wheel_link:
-          Value: true
-        rear_right_wheel_link:
           Value: true
         top_chassis_link:
           Value: true
@@ -130,42 +116,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          {}
-        odom:
-          base_link:
-            base_footprint:
-              {}
-            front_bumper_link:
-              {}
-            front_left_wheel_link:
-              {}
-            front_right_wheel_link:
-              {}
-            imu_link:
-              {}
-            inertial_link:
-              {}
-            rear_bumper_link:
-              {}
-            rear_left_wheel_link:
-              {}
-            rear_right_wheel_link:
-              {}
-            top_chassis_link:
-              {}
-            top_plate_link:
-              {}
-            user_rail_link:
-              camera_link:
-                camera_depth_frame:
-                  camera_depth_optical_frame:
-                    {}
-                camera_rgb_frame:
-                  camera_rgb_optical_frame:
-                    {}
-              laser:
-                {}
+        {}
       Update Interval: 0
       Value: true
     - Class: rviz/Image
@@ -333,6 +284,17 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Alpha: 1
+      Class: rtabmap_ros/MapGraph
+      Enabled: true
+      Global loop closure: 255; 0; 0
+      Local loop closure: 255; 255; 0
+      Name: MapGraph
+      Neighbor: 0; 0; 255
+      Topic: /rtabmap/mapGraph
+      User: 255; 0; 0
+      Value: true
+      Virtual: 255; 0; 255
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

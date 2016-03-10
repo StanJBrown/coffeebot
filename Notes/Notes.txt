@@ -64,10 +64,10 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="1e10", ATTRS{idProduct}=="2002", GROUP="plug
 Display floorplan
 Create a yaml file. Example shown below
 image: <path to file>
-resolution: 0.1
-origin: [0.0, 0.0, 0.0]
-occupied_thresh: 0.65
-free_thresh: 0.196
-negate: 0
+resolution: 0.1				# Meters/pixel
+origin: [0.0, 0.0, 0.0]		# 2-D pose of lower-left pixel in map (x,y,yaw), yaw = clockwise rot
+occupied_thresh: 0.65		# pixels with this occupancy prob greater than this are occupied
+free_thresh: 0.196			# considered free
+negate: 0					# semantics should be reveresed
 run:
 rosrun map_server map_server <name of yaml file>

@@ -2,7 +2,7 @@
 	<!-- ######## Define Arguments ######## -->
 	<!-- general arguments -->
 	<arg name="odom_topic" default="/husky_velocity_controller/odom" /> 
-	<arg name="use_laser_scanner" default="false" />
+	<arg name="use_laser_scanner" default="true" />
 
 	<!-- rtabmap arguments -->
 	<arg name="rtabmap_args" default="delete_db_on_start" /> 
@@ -72,7 +72,7 @@
 	   		<param name="LccBow/InlierDistance" type="string" value="0.1"/>          <!-- 3D visual words correspondence distance -->
 
 			<remap from="odom" to="$(arg odom_topic)" />
-			<remap from="scan" to="$(arg scan_topic)" />
+			<remap if="$(arg use_laser_scanner)" from="scan" to="$(arg scan_topic)" />
 		</node>
 	
 		<!-- Visualization rtabmapviz -->
@@ -117,4 +117,3 @@
 	</group>
 
 </launch>
-

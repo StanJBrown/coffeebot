@@ -1,0 +1,26 @@
+<launch>
+	<include file="$(find husky_base)/launch/base.launch" />
+	<!--include file="$(find husky_control)/launch/teleop.launch" -->
+
+	<!-- launch hokuyo node with calibrated timestamps -->
+	<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen" >
+		<param name="calibrate_time" type="bool" value="true" />
+		<param name="port" type="string" value="/dev/ttyACM0"/>
+	</node>
+
+	<include file="$(find freenect_launch)/launch/freenect.launch">
+		<arg name="depth_registration"  value="true" />
+		<arg name="depth_registered_processing" value="true" />
+	</include>
+
+	<node pkg="tf" type="static_transform_publisher" name="lidar_rail_tf"
+		args="0 0 0.8 0 0 3.141 /user_rail_link /laser 10"
+		/>
+	<node pkg="tf" type="static_transform_publisher" name="kinect_rail_tf"
+		args="0 0 1.2 0 0 0 /user_rail_link /camera_link 10"
+		/>
+
+	<include file="$(find cb25k)/launch/rtab_odom.launch" />
+
+
+</launch>

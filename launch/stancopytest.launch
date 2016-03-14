@@ -1,0 +1,54 @@
+<launch>
+
+
+	<include file="$(find husky_base)/launch/base.launch" />
+	<!--include file="$(find husky_control)/launch/teleop.launch" -->
+
+	<!-- launch hokuyo node with calibrated timestamps -->
+	<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen" >
+		<param name="calibrate_time" type="bool" value="true" />
+		<param name="port" type="string" value="/dev/ttyACM0"/>
+	</node>
+
+	<include file="$(find freenect_launch)/launch/freenect.launch">
+		<arg name="depth_registration"  value="true" />
+		<arg name="depth_registered_processing" value="true" />
+	</include>
+
+	<node pkg="tf" type="static_transform_publisher" name="lidar_rail_tf"
+		args="0 0 0.8 0 0 3.141 /user_rail_link /laser 10" />
+	<node pkg="tf" type="static_transform_publisher" name="kinect_rail_tf"
+		args="0 0 1.2 0 0 0 /user_rail_link /camera_link 10" />
+
+
+
+	<group ns="rtabmap">
+		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+			<param name="frame_id" type="string" value="base_link"/>
+
+			<param name="subscribe_depth" type="bool" value="true"/>
+			<param name="subscribe_laserScan" type="bool" value="true"/>
+
+			<remap from="odom" to="/odometry/filtered"/>
+			<remap from="scan" to="/scan"/>
+
+			<remap from="rgb/image" to="/camera/rgb/image_rect_color"/>
+			<remap from="depth/image" to="/camera/depth_registered/image_raw"/>
+			<remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
+
+			<param name="queue_size" type="int" value="10"/>
+
+			<!-- RTAB-Map's parameters -->
+			<param name="RGBD/PoseScanMatching" type="string" value="true"/>
+			<param name="RGBD/LocalLoopDetectionSpace" type="string" value="true"/>
+			<param name="LccIcp/Type" type="string" value="2"/>     <!-- 2=ICP 2D -->
+			<param name="LccBow/MinInliers" type="string" value="5"/>
+			<param name="LccBow/InlierDistance" type="string" value="0.1"/>
+			<param name="RGBD/AngularUpdate" type="string" value="0.01"/>
+			<param name="RGBD/LinearUpdate" type="string" value="0.01"/>
+			<param name="Rtabmap/TimeThr" type="string" value="700"/>
+			<param name="Mem/RehearsalSimilarity" type="string" value="0.45"/>
+			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/>
+		</node>
+	</group>
+</launch>

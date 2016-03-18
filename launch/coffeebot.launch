@@ -4,8 +4,12 @@
 	<arg name="odom_topic" default="/odometry/filtered" />
 	<arg name="use_laser_scanner" default="true" />
 
+	<!-- Localization-only mode -->
+  <arg name="localization"      default="false"/>
+  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
+  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>
+
 	<!-- rtabmap arguments -->
-	<arg name="rtabmap_args" default="delete_db_on_start" />
 	<arg name="visual_odometry" default="false" />
 	<arg name="rgb_topic" default="/camera/rgb/image_rect_color" />
 	<arg name="frame_id" default="base_link" />
@@ -53,7 +57,7 @@
 		<remap from="rgb/camera_info" to="$(arg camera_info_topic)" />
 
 		<!-- start the rtabmap node -->
-		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
 			<!-- rtabmap parameters (http://wiki.ros.org/rtabmap_ros#rtabmap) -->
 			<param name="frame_id" type="string" value="$(arg frame_id)" />
 			<param name="subscribe_depth" type="bool" value="true" />
@@ -61,28 +65,35 @@
 
 			<param name="RGBD/PoseScanMatching" type="string" value="true"/>
 			<param name="RGBD/LocalLoopDetectionSpace" type="string" value="true"/>
-			<param name="Reg/Strategy"              type="string" value="2"/>
 			<!--param name="LccIcp/Type" type="string" value="2"/-->     <!-- 2=ICP 2D -->
 			<!--param name="LccBow/MinInliers" type="string" value="5"/-->
 			<!-- param name="LccBow/InlierDistance" type="string" value="0.1"/-->
 			<!--param name="RGBD/AngularUpdate" type="string" value="0.01"/-->
 			<!--param name="RGBD/LinearUpdate" type="string" value="0.01"/-->
-			<param name="Rtabmap/TimeThr" type="string" value="700"/>
-			<param name="Mem/RehearsalSimilarity" type="string" value="0.45"/>
-			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/>
+			<!-- param name="Mem/RehearsalSimilarity" type="string" value="0.45"/-->
 			<param name="RGBD/NeighborLinkRefining" type="string" value="true"/>  <!-- Do odometry correction with consecutive laser scans -->
 			<param name="RGBD/ProximityBySpace"     type="string" value="true"/>  <!-- Local loop closure detection (using estimated position) with locations in WM -->
 			<param name="RGBD/ProximityByTime"      type="string" value="false"/> <!-- Local loop closure detection with locations in STM -->
-		  <param name="Reg/Strategy"              type="string" value="2"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
+		  <param name="Reg/Strategy"              type="string" value="1"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
 			<!--param name="Vis/InlierDistance"        type="string" value="0.1"/-->   <!-- 3D visual words correspondence distance -->
-			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/> <!-- Optimize graph from initial node so /map -> /odom transform will be generated -->
+			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/> <!-- Optimize graph from initial node so /map -> /odom transform will be generated -->
 			<param name="Optimizer/Slam2D"          type="string" value="true"/>
 			<param name="Reg/Force3DoF"             type="string" value="true"/>
 			<param name="Mem/MapLabelsAdded"        type="string" value="true"/>
+			<param name="Vis/InlierDistance"        type="string" value="0.1"/>
 
 			<param name="rgb/image_transport"   type="string" value="compressed"/>
-		<param name="depth/image_transport" type="string" value="compressedDepth"/>
+			<param name="depth/image_transport" type="string" value="compressedDepth"/>
 
+			<!-- localization mode -->
+		  <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+		  <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+		  <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+			<remap from="odom"            to="$(arg odom_topic)" />
+			<remap from="scan"            to="/scan" />
+			<param name="RGBD/AngularUpdate" type="string" value="0.01" />
+			<param name="RGBD/LinearUpdate" type="string" value="0.01" />
+			<param name="Rtabmap/TimeThr" type="string" value="700" />
 			<!--
 
 			<param name="queue_size" type="int" value="10" />
@@ -93,8 +104,6 @@
 			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true" />
 			<param name="wait_for_transform_duration" type="double" value="10" />
 -->
-			<remap from="odom" to="$(arg odom_topic)" />
-			<remap from="scan" to="/scan" />
 		</node>
 
 		<!-- Visualization rtabmapviz -->
@@ -108,7 +117,7 @@
 			<!--<remap from="scan"            to="$(arg scan_topic)"/>-->
 			<remap unless="$(arg visual_odometry)" from="odom"  to="$(arg odom_topic)"/>
 			<param name="rgb/image_transport"   type="string" value="compressed"/>
-		<param name="depth/image_transport" type="string" value="compressedDepth"/>
+			<param name="depth/image_transport" type="string" value="compressedDepth"/>
 		</node>
 	</group>
 
@@ -129,7 +138,7 @@
 			<remap from="rgb/camera_info_out" to="data_odom_sync/camera_info"/>
 			<remap from="odom_out"            to="odom_sync"/>
 			<param name="rgb/image_transport"   type="string" value="compressed"/>
-		<param name="depth/image_transport" type="string" value="compressedDepth"/>
+			<param name="depth/image_transport" type="string" value="compressedDepth"/>
 		</node>
 		<node if="$(arg rviz)" pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load rtabmap_ros/point_cloud_xyzrgb standalone_nodelet">
 			<remap from="rgb/image"       to="data_odom_sync/image"/>

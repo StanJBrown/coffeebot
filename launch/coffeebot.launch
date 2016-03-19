@@ -17,6 +17,7 @@
 	<arg name="depth_registered_topic" default="/camera/depth_registered/image_raw" />
 	<arg name="camera_info_topic" default="/camera/rgb/camera_info" />
 	<arg name="map_file" default="$(find coffeebot)/floor3_map.yaml"/>
+	<arg name="no_static_map" default="true" />
 
 	<!-- rtabmapviz arguments -->
 	<arg name="rtabmapviz" default="true" />
@@ -28,6 +29,24 @@
 
 	<!-- Use this for localizing in an established database -->
 	<!-- <arg name="database_path" default="~/.ros/rtabmap.db" /> -->
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<!-- observation sources located in costmap_common.yaml -->
+		<rosparam file="$(find coffeebot)/costmap_common.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find coffeebot)/costmap_common.yaml" command="load" ns="local_costmap" />
+
+		<!-- local costmap, needs size -->
+		<rosparam file="$(find coffeebot)/costmap_local.yaml" command="load" ns="local_costmap" />
+		<param name="local_costmap/width" value="10.0"/>
+		<param name="local_costmap/height" value="10.0"/>
+
+		<!-- static global costmap, static map provides size -->
+		<rosparam file="$(find coffeebot)/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
+
+		<!-- global costmap with laser, for odom_navigation_demo -->
+		<rosparam file="$(find coffeebot)/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
+		<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
+		<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
+	</node>
 
 	<!-- ######## Initialize Nodes ######## -->
 	<!-- Launch husky base -->

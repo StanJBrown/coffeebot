@@ -25,28 +25,35 @@
 
 	<!-- rviz arguments -->
 	<arg name="rviz" default="true" />
-	<arg name="rviz_cfg" default="-d $(find coffeebot)/launch/config/cbrc.rviz" />
+	<arg name="rviz_cfg" default="-d $(find coffeebot)/config/cbrc.rviz" />
 
 	<!-- Use this for localizing in an established database -->
-	<!-- <arg name="database_path" default="~/.ros/rtabmap.db" /> -->
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-		<!-- observation sources located in costmap_common.yaml -->
-		<rosparam file="$(find coffeebot)/costmap_common.yaml" command="load" ns="global_costmap" />
-		<rosparam file="$(find coffeebot)/costmap_common.yaml" command="load" ns="local_costmap" />
+	<!--group ns="jason"-->
+		<!--remap from="/map" to="/rtabmap/grid_map" /-->
+		<!--remap from="scan" to="/scan" /-->
+		<!-- <arg name="database_path" default="~/.ros/rtabmap.db" /> -->
+		<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+			<!-- observation sources located in costmap_common.yaml -->
+			<remap from="map" to="/rtabmap/grid_map" />
+			<remap from="scan" to="/scan" />
+			<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+			<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+			<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
 
-		<!-- local costmap, needs size -->
-		<rosparam file="$(find coffeebot)/costmap_local.yaml" command="load" ns="local_costmap" />
-		<param name="local_costmap/width" value="10.0"/>
-		<param name="local_costmap/height" value="10.0"/>
+			<!-- local costmap, needs size -->
+			<rosparam file="$(find coffeebot)/config/costmap_local.yaml" command="load" ns="local_costmap" />
+			<param name="local_costmap/width" value="10.0"/>
+			<param name="local_costmap/height" value="10.0"/>
 
-		<!-- static global costmap, static map provides size -->
-		<rosparam file="$(find coffeebot)/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
+			<!-- static global costmap, static map provides size -->
+			<rosparam file="$(find coffeebot)/config/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
 
-		<!-- global costmap with laser, for odom_navigation_demo -->
-		<rosparam file="$(find coffeebot)/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
-		<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
-		<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
-	</node>
+			<!-- global costmap with laser, for odom_navigation_demo -->
+			<rosparam file="$(find coffeebot)/config/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
+			<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
+			<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
+		</node>
+	<!--/group-->
 
 	<!-- ######## Initialize Nodes ######## -->
 	<!-- Launch husky base -->

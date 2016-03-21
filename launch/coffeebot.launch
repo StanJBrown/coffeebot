@@ -2,18 +2,18 @@
 	<!-- ######## Define Arguments ######## -->
 	<!-- general arguments -->
 	<arg name="odom_topic" default="/odometry/filtered" />
+	<arg name="scan_topic" default="/scan" />
 	<arg name="use_laser_scanner" default="true" />
 
 	<!-- Localization-only mode -->
-  <arg name="localization"      default="false"/>
-  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
-  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>
+  	<arg name="localization"      default="false"/>
+  	<arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
+  	<arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>
 
 	<!-- rtabmap arguments -->
 	<arg name="visual_odometry" default="false" />
 	<arg name="rgb_topic" default="/camera/rgb/image_rect_color" />
 	<arg name="frame_id" default="base_link" />
-	<arg name="scan_topic" default="/scan" />
 	<arg name="depth_registered_topic" default="/camera/depth_registered/image_raw" />
 	<arg name="camera_info_topic" default="/camera/rgb/camera_info" />
 	<arg name="map_file" default="$(find coffeebot)/floor3_map.yaml"/>
@@ -25,35 +25,8 @@
 
 	<!-- rviz arguments -->
 	<arg name="rviz" default="true" />
-	<arg name="rviz_cfg" default="-d $(find coffeebot)/config/cbrc.rviz" />
-
-	<!-- Use this for localizing in an established database -->
-	<!--group ns="jason"-->
-		<!--remap from="/map" to="/rtabmap/grid_map" /-->
-		<!--remap from="scan" to="/scan" /-->
-		<!-- <arg name="database_path" default="~/.ros/rtabmap.db" /> -->
-		<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-			<!-- observation sources located in costmap_common.yaml -->
-			<remap from="map" to="/rtabmap/grid_map" />
-			<remap from="scan" to="/scan" />
-			<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="global_costmap" />
-			<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-			<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
-
-			<!-- local costmap, needs size -->
-			<rosparam file="$(find coffeebot)/config/costmap_local.yaml" command="load" ns="local_costmap" />
-			<param name="local_costmap/width" value="10.0"/>
-			<param name="local_costmap/height" value="10.0"/>
-
-			<!-- static global costmap, static map provides size -->
-			<rosparam file="$(find coffeebot)/config/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
-
-			<!-- global costmap with laser, for odom_navigation_demo -->
-			<rosparam file="$(find coffeebot)/config/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
-			<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
-			<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
-		</node>
-	<!--/group-->
+	<arg if="$(arg localization)" name="rviz_cfg" default="-d $(find coffeebot)/config/cbrc_nav.rviz" />
+	<arg unless="$(arg localization)" name="rviz_cfg" default="-d $(find coffeebot)/config/cbrc_map.rviz" />
 
 	<!-- ######## Initialize Nodes ######## -->
 	<!-- Launch husky base -->
@@ -120,11 +93,11 @@
 			<param name="depth/image_transport" type="string" value="compressedDepth"/>
 
 			<!-- localization mode -->
-		  <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
-		  <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
-		  <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+		  	<param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+		  	<param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+		  	<param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
 			<remap from="odom"            to="$(arg odom_topic)" />
-			<remap from="scan"            to="/scan" />
+			<remap from="scan"            to="$(arg scan_topic)" />
 			<param name="RGBD/AngularUpdate" type="string" value="0.01" />
 			<param name="RGBD/LinearUpdate" type="string" value="0.01" />
 			<param name="Rtabmap/TimeThr" type="string" value="700" />
@@ -136,8 +109,7 @@
 			<param name="Rtabmap/TimeThr" type="string" value="700" />
 			<param name="Mem/RehearsalSimilarity" type="string" value="0.45" />
 			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true" />
-			<param name="wait_for_transform_duration" type="double" value="10" />
--->
+			<param name="wait_for_transform_duration" type="double" value="10" /> -->
 		</node>
 
 		<!-- Visualization rtabmapviz -->
@@ -184,5 +156,29 @@
 			<param name="voxel_size" type="double" value="0.02"/>
 		</node>
 	</group>
+
+	<!-- Navigation Stack -->
+	<node if="$(arg localization)" pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<remap from="map" to="/rtabmap/grid_map" />
+		<remap from="scan" to="$(arg scan_topic)" />
+
+		<!-- observation sources located in costmap_common.yaml -->
+		<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
+
+		<!-- local costmap, needs size -->
+		<rosparam file="$(find coffeebot)/config/costmap_local.yaml" command="load" ns="local_costmap" />
+		<param name="local_costmap/width" value="10.0"/>
+		<param name="local_costmap/height" value="10.0"/>
+
+		<!-- static global costmap, static map provides size -->
+		<rosparam file="$(find coffeebot)/config/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
+
+		<!-- global costmap with laser, for odom_navigation_demo -->
+		<rosparam file="$(find coffeebot)/config/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
+		<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
+		<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
+	</node>
 
 </launch>

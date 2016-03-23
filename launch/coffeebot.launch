@@ -17,7 +17,7 @@
 	<arg name="depth_registered_topic" default="/camera/depth_registered/image_raw" />
 	<arg name="camera_info_topic" default="/camera/rgb/camera_info" />
 	<arg name="map_file" default="$(find coffeebot)/floor3_map.yaml"/>
-	<arg name="no_static_map" default="true" />
+	<arg name="no_static_map" default="false" />
 
 	<!-- rtabmapviz arguments -->
 	<arg name="rtabmapviz" default="true" />
@@ -81,7 +81,7 @@
 			<param name="RGBD/NeighborLinkRefining" type="string" value="true"/>  <!-- Do odometry correction with consecutive laser scans -->
 			<param name="RGBD/ProximityBySpace"     type="string" value="true"/>  <!-- Local loop closure detection (using estimated position) with locations in WM -->
 			<param name="RGBD/ProximityByTime"      type="string" value="false"/> <!-- Local loop closure detection with locations in STM -->
-		  <param name="Reg/Strategy"              type="string" value="1"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
+		  	<param name="Reg/Strategy"              type="string" value="1"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
 			<!--param name="Vis/InlierDistance"        type="string" value="0.1"/-->   <!-- 3D visual words correspondence distance -->
 			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/> <!-- Optimize graph from initial node so /map -> /odom transform will be generated -->
 			<param name="Optimizer/Slam2D"          type="string" value="true"/>
@@ -158,14 +158,21 @@
 	</group>
 
 	<!-- Navigation Stack -->
+	<arg name="base_global_planner" default="navfn/NavfnROS"/>
+	<!-- <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/> -->
+	<arg name="base_local_planner" default="base_local_planner/TrajectoryPlannerROS"/>
+
 	<node if="$(arg localization)" pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 		<remap from="map" to="/rtabmap/grid_map" />
 		<remap from="scan" to="$(arg scan_topic)" />
 
+		<param name="base_global_planner" value="$(arg base_global_planner)"/>
+	    <param name="base_local_planner" value="$(arg base_local_planner)"/>
+		<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
+
 		<!-- observation sources located in costmap_common.yaml -->
 		<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find coffeebot)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-		<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
 
 		<!-- local costmap, needs size -->
 		<rosparam file="$(find coffeebot)/config/costmap_local.yaml" command="load" ns="local_costmap" />
@@ -176,9 +183,10 @@
 		<rosparam file="$(find coffeebot)/config/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
 
 		<!-- global costmap with laser, for odom_navigation_demo -->
+		<!--
 		<rosparam file="$(find coffeebot)/config/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
 		<param name="global_costmap/width" value="100.0" if="$(arg no_static_map)"/>
-		<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/>
+		<param name="global_costmap/height" value="100.0" if="$(arg no_static_map)"/> -->
 	</node>
 
 </launch>

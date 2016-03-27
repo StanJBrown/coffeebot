@@ -16,7 +16,7 @@ using std::string;
 
 namespace global_planner {
 	class GlobalPlanner : public nav_core::BaseGlobalPlanner {
-	public:
+		public:
 
 		GlobalPlanner();
 		GlobalPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros);

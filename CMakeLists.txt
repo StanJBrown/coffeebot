@@ -185,8 +185,8 @@ catkin_package(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_library(global_planner_lib global_planner.cpp)
+add_library(global_planner_lib src/global_planner.cpp)
 
 
-add_executable(path_planner path_planner.cpp)
+add_executable(path_planner src/path_planner.cpp)
 target_link_libraries(path_planner ${catkin_LIBRARIES})

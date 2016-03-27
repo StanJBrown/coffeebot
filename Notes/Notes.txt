@@ -28,7 +28,7 @@ https://github.com/RainerKuemmerle/g2o
 
 
 
-roslaunch rtabmap_ros 
+roslaunch rtabmap_ros
 
 
 -To get rtabmap demo running in rviz
@@ -71,3 +71,17 @@ free_thresh: 0.196			# considered free
 negate: 0					# semantics should be reveresed
 run:
 rosrun map_server map_server <name of yaml file>
+
+
+--------------------------------------------------------
+ROSBAG
+Topics to listen to:
+/scan
+/odometry/filtered
+/camera/depth_registered/image_raw/compressedDepth
+/camera/rgb/image_rect_color/compressed
+/camera/rgb/camera_info
+/tf
+
+RUN:
+rosbag record /scan /odometry/filtered /camera/depth_registered/image_raw/compressedDepth /camera/rgb/image_rect_color/compressed /camera/rgb/camera_info /tf

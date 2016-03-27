@@ -5,6 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Grid1
+        - /Occupancy Grid1
+        - /Occupancy Grid1/Status1
       Splitter Ratio: 0.392996
     Tree Height: 539
   - Class: rviz/Selection
@@ -211,7 +213,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Occupancy Grid
-      Topic: /floor/map
+      Topic: /rtabmap/grid_map
       Value: true
     - Alpha: 0.7
       Class: rviz/Map
@@ -300,7 +302,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 177.528
+      Distance: 58.5238
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -312,10 +314,10 @@ Visualization Manager:
         Z: -1.13407
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.0298
+      Pitch: 1.5698
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 3.51234
+      Yaw: 4.67235
     Saved: ~
 Window Geometry:
   Displays:
@@ -335,5 +337,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1589
-  X: 260
+  X: 250
   Y: 14

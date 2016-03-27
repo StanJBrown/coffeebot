@@ -42,7 +42,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 15
       Reference Frame: map
       Value: true
     - Alpha: 1
@@ -370,7 +370,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 12.3517
+      Distance: 24.3801
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -382,10 +382,10 @@ Visualization Manager:
         Z: -1.13136
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.7948
+      Pitch: 1.0998
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 1.49916
+      Yaw: 3.26416
     Saved: ~
 Window Geometry:
   Displays:
@@ -405,5 +405,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1535
-  X: 329
+  X: 319
   Y: 14

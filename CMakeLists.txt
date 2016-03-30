@@ -4,7 +4,13 @@ project(coffeebot)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp tf)
+find_package(catkin REQUIRED COMPONENTS
+  rospy
+  roscpp
+  tf
+  std_msgs
+  geometry_msgs
+  message_generation)
 find_package(PCL REQUIRED)
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -47,16 +53,14 @@ add_definitions(${PCL_DEFINITIONS})
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+#)
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   room_to_xy.srv
+   room_to_goal.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -66,10 +70,11 @@ add_definitions(${PCL_DEFINITIONS})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+   geometry_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -187,6 +192,23 @@ catkin_package(
 
 add_library(global_planner_lib src/global_planner.cpp)
 
-
+# Room to xy service
 add_executable(path_planner src/path_planner.cpp)
 target_link_libraries(path_planner ${catkin_LIBRARIES})
+
+add_executable(room_to_xy_server src/room_to_xy_server.cpp)
+target_link_libraries(room_to_xy_server ${catkin_LIBRARIES})
+add_dependencies(room_to_xy_server coffeebot_gencpp)
+
+add_executable(room_to_xy_client src/room_to_xy_client.cpp)
+target_link_libraries(room_to_xy_client ${catkin_LIBRARIES})
+add_dependencies(room_to_xy_client coffeebot_gencpp)
+
+# Room to goal service
+add_executable(room_to_goal_server src/room_to_goal_server.cpp)
+target_link_libraries(room_to_goal_server ${catkin_LIBRARIES})
+add_dependencies(room_to_goal_server coffeebot_gencpp)
+
+add_executable(room_to_goal_client src/room_to_goal_client.cpp)
+target_link_libraries(room_to_goal_client ${catkin_LIBRARIES})
+add_dependencies(room_to_goal_client coffeebot_gencpp)

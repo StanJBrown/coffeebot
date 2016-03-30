@@ -1,0 +1,3 @@
+int32 room
+---
+geometry_msgs/Point position

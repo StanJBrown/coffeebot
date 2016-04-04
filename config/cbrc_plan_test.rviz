@@ -275,7 +275,7 @@ Visualization Manager:
               Name: Exploration Costmap
               Topic: /explore_server/explore_costmap/costmap
               Value: true
-          Enabled: true
+          Enabled: false
           Name: Exploration
         - Alpha: 0.7
           Class: rviz/Map
@@ -375,7 +375,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 28.9847
+      Distance: 9.6075
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -387,10 +387,10 @@ Visualization Manager:
         Z: -0.362065
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.2598
+      Pitch: 1.3398
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.78538
+      Yaw: 4.92038
     Saved: ~
 Window Geometry:
   Displays:

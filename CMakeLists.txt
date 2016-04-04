@@ -1,16 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(coffeebot)
 
+add_definitions(-std=c++11)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  rospy
-  roscpp
-  tf
-  std_msgs
-  geometry_msgs
-  message_generation)
+    rospy
+    roscpp
+    tf
+    std_msgs
+    geometry_msgs
+    nav_msgs
+    visualization_msgs
+    pcl_ros
+    message_generation)
 find_package(PCL REQUIRED)
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -74,6 +79,8 @@ generate_messages(
    DEPENDENCIES
    std_msgs  # Or other packages containing msgs
    geometry_msgs
+   visualization_msgs
+   nav_msgs
 )
 
 ################################################

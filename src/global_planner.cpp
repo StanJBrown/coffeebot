@@ -40,18 +40,18 @@ namespace global_planner {
     double mapOriginY;
     double mapResolution;
 
-    const unsigned int SAMPLE_SIZE = 500;
+    const unsigned int SAMPLE_SIZE = 300;
 
     // Each cell of the cost map is a value from 0 to 255
     // Anything above this threshold is not consisered for path making
-    const unsigned char COST_THRESHOLD = 50;
+    const unsigned char COST_THRESHOLD = 5;
 
     // The number of nearest vertices to attempt to connect to when building network
-    const unsigned int N_NEAREST = 20;
+    const unsigned int N_NEAREST = 50;
 
     // PRM nodes and edges
     Vertex vertices[SAMPLE_SIZE];
-    Vertex* freeVertices;
+    vector<Vertex> freeVertices;
     vector<Edge> edges;
 
     costmap_2d::Costmap2D* globalCostmap;
@@ -67,10 +67,26 @@ namespace global_planner {
         initialize(name, costmap_ros);
     }
 
+    // Checks if the costmap cell is below the threshold
+    // Input is in cell coordinates
     bool checkCost(int x, int y)
     {
         unsigned char cost = globalCostmap->getCost(x, y);
-        //ROS_INFO("cost at location: %d, %d: %d", x, y, cost);
+        if (cost >= COST_THRESHOLD)
+        {
+            return (true);
+        }
+        return (false);
+    }
+
+    // Checks if the costmap cell is below the threshold
+    // Input is in world coordinates
+    bool checkCost(double x, double y)
+    {
+        int cX;
+        int cY;
+        globalCostmap->worldToMapEnforceBounds(x, y, cX, cY);
+        unsigned char cost = globalCostmap->getCost(cX, cY);
         if (cost >= COST_THRESHOLD)
         {
             return (true);
@@ -140,8 +156,6 @@ namespace global_planner {
         return (false);
     }
 
-
-
     // Returns true if a collision is found
     bool checkLineCollision(Vertex pt1, Vertex pt2)
     {
@@ -150,10 +164,6 @@ namespace global_planner {
         globalCostmap->worldToMapEnforceBounds(pt2.xPosition, pt2.yPosition, x2, y2);
 
         return (Bresenham(x1, y1, x2, y2));
-
-
-
-
     }
 
     double distanceBetweenVertices(Vertex pt1, Vertex pt2)
@@ -203,8 +213,6 @@ namespace global_planner {
     void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
     {
         // Get the map dimensions in terms of cells
-
-        //globalCostmapROS = costmap_ros;
         globalCostmap = costmap_ros->getCostmap();
 
         mapSizeCX = globalCostmap->getSizeInCellsX();
@@ -219,15 +227,9 @@ namespace global_planner {
 
         // Publisher
         ros::NodeHandle n;
-        //ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-        //ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
         plan_pub = n.advertise<nav_msgs::Path>("planB", 1);
         viz_pub = n.advertise<visualization_msgs::Marker>("PRM_Network", 1);
     }
-
-
-
-
 
     class CompareDist
     {
@@ -285,10 +287,9 @@ namespace global_planner {
         return (-1);
     }
 
-
-//vector<int>
     vector<int> aStarSearch(int startIndex, int goalIndex)
     {
+        bool goalFound = false;
         vector<OpenNode> openSet;
         vector<OpenNode> closedSet;
 
@@ -300,19 +301,21 @@ namespace global_planner {
         ROS_INFO("Starting search from %d to %d", startIndex, goalIndex);
         while (openSet.size() > 0)
         {
+            // Remove from open set
             current = openSet.back();
             openSet.pop_back();
             currentIndex = current.index;
 
-            // Add to closed list
+            // Add to closed set
             closedSet.push_back(current);
             if (currentIndex == goalIndex)
             {
+                goalFound = true;
                 break;
             }
 
-
             int neighbourCount = freeVertices[currentIndex].neighbourIndices.size();
+            ROS_INFO("Checking %d neighbours of vertex %d", neighbourCount, currentIndex);
 
             // Loop through all neighbours
             for (int i = 0; i < neighbourCount; i++)
@@ -320,22 +323,22 @@ namespace global_planner {
                 int nextIndex = freeVertices[currentIndex].neighbourIndices[i];
                 double newCost = current.costToReach + freeVertices[currentIndex].neighbourDistances[i];
 
-                ROS_INFO("Neighbour %d (%d) of vertex %d has a new cost of %f", i, nextIndex, currentIndex, newCost);
+                //ROS_INFO("Neighbour %d (%d) of vertex %d has a new cost of %f", i, nextIndex, currentIndex, newCost);
 
                 if (setContains(openSet, nextIndex))
                 {
                     if (newCost < openSet[getNodeIndex(openSet, nextIndex)].costToReach)
                     {
                         // Remove from open set
-                        openSet[getNodeIndex(openSet, nextIndex)].index = -1;
+                        openSet.erase(openSet.begin() + getNodeIndex(openSet, nextIndex));
                     }
                 }
                 if (setContains(closedSet, nextIndex))
                 {
                     if (newCost < closedSet[getNodeIndex(closedSet, nextIndex)].costToReach)
                     {
-                        // Remove from open set
-                        closedSet[getNodeIndex(closedSet, nextIndex)].index = -1;
+                        // Remove from closed set
+                        closedSet.erase(closedSet.begin() + getNodeIndex(closedSet, nextIndex));
                     }
                 }
                 if (!setContains(openSet, nextIndex) && !setContains(closedSet, nextIndex))
@@ -349,14 +352,22 @@ namespace global_planner {
             }
         }
 
-        ROS_INFO("Path found, now back tracking");
-        // Go back through the chain to find the path
-
+        int parentInd;
         bool notDone = true;
         vector<int> pathIndices;
 
-        int parentInd = goalIndex;
+        if (goalFound)
+        {
+            ROS_INFO("Path to goal found, now back tracking");
+            parentInd = goalIndex;
+        }
+        else
+        {
+            ROS_INFO("No path to goal found, changing goal to nearest point");
+            parentInd = currentIndex;
+        }
 
+        // Go back through the chain to find the path
         while (notDone)
         {
             pathIndices.push_back(parentInd);
@@ -379,22 +390,22 @@ namespace global_planner {
         return (pathIndices);
     }
 
-/*
-    struct Vertex
-    {
-        double xPosition;
-        double yPosition;
-        bool inFreeSpace;
-        vector<int> neighbourIndices;
-        vector<double> neighbourDistances;
-    };
-*/
-
-
     bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start,
         const geometry_msgs::PoseStamped& goal,
         std::vector<geometry_msgs::PoseStamped>& plan )
     {
+        // First check if goal location is in free space
+        if (checkCost(goal.pose.position.x, goal.pose.position.y))
+        {
+            ROS_INFO("Goal is placed on unreachable cell! No path generated");
+            return (false);
+        }
+
+        // Clear out all global containers
+        //fill_n(vertices, SAMPLE_SIZE, 0);
+        freeVertices.clear();
+        edges.clear();
+
         // First add the start and goal poses as vertices
         vertices[0].xPosition = start.pose.position.x;
         vertices[0].yPosition = start.pose.position.y;
@@ -413,19 +424,16 @@ namespace global_planner {
         for (int i = 2; i < SAMPLE_SIZE; i++)
         {
             // Create random point
-            //vertices[i].xPosition = rand() % mapSizeX;
-            //vertices[i].yPosition = rand() % mapSizeY;
             double randX = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/mapSizeMX)) + mapOriginX;
             double randY = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/mapSizeMY)) + mapOriginY;
             vertices[i].xPosition = randX;
             vertices[i].yPosition = randY;
 
             // Grid cell that the point is in
+            // TODO: replace all this with the checkCost function
             int cellX;
             int cellY;
             globalCostmap->worldToMapEnforceBounds(randX, randY, cellX, cellY);
-
-
 
             //ROS_INFO("## - New random point at: %f, %f", randX, randY);
             //ROS_INFO("## - New random point at: %d, %d", cellX, cellY);
@@ -439,33 +447,20 @@ namespace global_planner {
                 vertices[i].inFreeSpace = true;
                 freeVertexCount++;
 
-
-
-                ROS_INFO("Node pushed: %f, %f", vertices[i].xPosition, vertices[i].yPosition);
-
-                // Display stuff
-                /*
-                geometry_msgs::Point p;
-                p.x = randX;
-                p.y = randY;
-                p.z = 2.0;
-                drawPoints.points.push_back(p);
-                */
-
+                //ROS_INFO("Node pushed: %f, %f", vertices[i].xPosition, vertices[i].yPosition);
             }
         }
 
-
-        ROS_INFO("No of free Verts: %d", freeVertexCount);
+        ROS_INFO("%d free vertices generated", freeVertexCount);
 
         // Create a list of vertices in free space
-        freeVertices = new Vertex[freeVertexCount];
+        //freeVertices = new Vertex[freeVertexCount];
         unsigned int count = 0;
         for (int i = 0; i < SAMPLE_SIZE; i++)
         {
             if (vertices[i].inFreeSpace == true)
             {
-                freeVertices[count] = vertices[i];
+                freeVertices.push_back(vertices[i]);
                 count++;
             }
         }
@@ -478,17 +473,11 @@ namespace global_planner {
             // Find nearest vertices
             for (int j = i + 1; j < freeVertexCount; j++)
             {
-                // Skip the same vertex
-                //if (i == j)
-                //{
-                //    continue;
-                //}
                 distances[j] = distanceBetweenVertices(freeVertices[i], freeVertices[j]);
             }
 
             // sort by distance
             vector<int> indices = sort_indexes2(distances);
-
 
             //ROS_INFO("--Nearest distances for node: %d", i);
             int nClosest = N_NEAREST;
@@ -531,6 +520,14 @@ namespace global_planner {
             }
         }
 
+        // Check if start and finish nodes have no neighbours
+        if (freeVertices[0].neighbourIndices.size() == 0 || freeVertices[1].neighbourIndices.size() == 0)
+        {
+            ROS_INFO("No connections could be made to the start or goal node!");
+            return (false);
+        }
+
+
         // display all vertex connections
         for (int i = 0; i < freeVertexCount; i++)
         {
@@ -541,10 +538,7 @@ namespace global_planner {
             }
         }
 
-
-
         // Search network using A*
-
         vector<int> pathFromGoal = aStarSearch(0, 1);
 
         // Finally create nav path from the A* path
@@ -608,11 +602,12 @@ namespace global_planner {
             rvizPath.poses[i] = plan[i];
         }
 
+        // Publish all network edges and then the path found
         viz_pub.publish(edgeLines);
         plan_pub.publish(rvizPath);
 
         ROS_INFO("#### - New global path served fresh - ####");
 
-        return true;
+        return (true);
     }
 };

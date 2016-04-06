@@ -1,11 +1,7 @@
 <launch>
     <include file="$(find husky_gazebo)/launch/husky_playpen.launch" />
-    <!--<include file="$(find husky_viz)/launch/view_robot.launch" />-->
+
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find coffeebot)/config/cbrc_plan_test.rviz" output="screen"/>
-
-
-    <!-- Navigation Stack -->
-    <!--<include file="$(find husky_navigation)/launch/amcl_demo.launch" />-->
 
     <!-- Run the map server -->
     <arg name="map_file" default="$(find husky_navigation)/maps/playpen_map.yaml"/>
@@ -26,6 +22,7 @@
         <param name="base_global_planner" value="$(arg base_global_planner)"/>
         <param name="base_local_planner" value="$(arg base_local_planner)"/>
         <rosparam file="$(find husky_navigation)/config/planner.yaml" command="load"/>
+        <!--<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>-->
 
         <!-- observation sources located in costmap_common.yaml -->
         <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />

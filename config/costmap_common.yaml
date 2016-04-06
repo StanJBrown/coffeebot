@@ -22,12 +22,14 @@ obstacles_laser:
 
 obstacles_cloud:
     observation_sources: point_cloud_sensor
-    point_cloud_sensor: {sensor_frame: /camera_depth_frame, data_type: PointCloud2,
-      topic: /camera/depth_registered/points,
-      marking: true,
-      max_obstacle_height: 2.0,
-      clearing: true
+    point_cloud_sensor: {
+        sensor_frame: /camera_depth_frame,
+        data_type: PointCloud2,
+        topic: /camera/depth_registered/points,
+        marking: true,
+        max_obstacle_height: 2.0,
+        clearing: true
     }
 
 inflation:
-    inflation_radius: 1.0
+    inflation_radius: 0.7

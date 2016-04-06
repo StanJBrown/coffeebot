@@ -2,6 +2,6 @@ global_frame: odom
 rolling_window: true
 
 plugins:
-# - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}
-  - {name: obstacles_cloud,         type: "costmap_2d::VoxelLayer"}
-  - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+ - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}
+#  - {name: obstacles_cloud,         type: "costmap_2d::VoxelLayer"}
+ - {name: inflation,                 type: "costmap_2d::InflationLayer"}

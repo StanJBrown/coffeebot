@@ -62,16 +62,24 @@ int main(int argc, char ** argv)
   //ros::Rate max_loop_rate(100);
   //max_loop_rate.sleep();
   double room_x, room_y;
+  /*
   if(mapx.find(query) != mapx.end()){
     room_x = mapx[query];
   };
   if(mapy.find(query) != mapy.end()){
     room_y = mapy[query];
   };
+  */
   ros::Duration(1).sleep();
-  //ros::Rate loop_rate(10);
+  ros::Rate loop_rate(10);
   int i=1;
-  //while(i<5){
+  if(query==3012){
+      room_x = 19.815;
+      room_y = -3.938;
+
+
+  }
+  while(i<25){
     geometry_msgs::PoseStamped msg;
     ros::Time current_time;
     current_time = ros::Time::now();
@@ -82,13 +90,13 @@ int main(int argc, char ** argv)
     msg.pose.position.z = 0.0;
     msg.pose.orientation.x = 0.0;
     msg.pose.orientation.y = 0.0;
-    msg.pose.orientation.z = 0.0;
-    msg.pose.orientation.w = 1.0;
+    msg.pose.orientation.z = 0.43;
+    msg.pose.orientation.w = 0.903;
     goal_pub.publish(msg);
     ROS_INFO("Published goal %d",query);
-    //loop_rate.sleep();
+    loop_rate.sleep();
     i=i+1;
-  //}
+  }
 
   /*
   ros::ServiceServer service = n.advertiseService("room_to_goal", room2goal);

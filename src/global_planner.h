@@ -12,6 +12,7 @@
 #include <base_local_planner/costmap_model.h>
 #include <vector>
 #include <iterator>
+#include <ctime>
 
 using std::string;
 using namespace std;
@@ -31,8 +32,6 @@ namespace global_planner {
 		bool makePlan(const geometry_msgs::PoseStamped& start,
 			const geometry_msgs::PoseStamped& goal,
 			std::vector<geometry_msgs::PoseStamped>& plan );
-
-
 	};
 
 	// --- Structs

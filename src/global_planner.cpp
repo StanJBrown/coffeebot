@@ -50,6 +50,8 @@ namespace global_planner {
         initialize(name, costmap_ros);
     }
 
+    //private refinePath
+
     void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
     {
         // Get the map dimensions in terms of cells
@@ -206,6 +208,31 @@ namespace global_planner {
 
         // Search network using A*
         vector<int> pathFromGoal = aStarSearch(0, 1);
+
+        // Refine the path
+        if (pathFromGoal.size() > 2)
+        {
+            for (int i = 0; i < pathFromGoal.size() - 2; i++)
+            {
+                // Check if we can skip some nodes
+                Vertex currentVertex = freeVertices[pathFromGoal[i]];
+                Vertex nextVertex = freeVertices[pathFromGoal[i + 2]];
+
+                while (!isLineOccupied(currentVertex, nextVertex))
+                {
+                    // Remove node in between
+                    pathFromGoal.erase(pathFromGoal.begin() + i + 1);
+                    if ((pathFromGoal.size() - 1) <= i + 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        nextVertex = freeVertices[pathFromGoal[i + 2]];
+                    }
+                }
+            }
+        }
 
         // Finally create nav path from the A* path
         for (int i = pathFromGoal.size()-1; i >= 0; i--)

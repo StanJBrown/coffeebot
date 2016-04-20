@@ -198,6 +198,7 @@ catkin_package(
 # catkin_add_nosetests(test)
 
 add_library(global_planner_lib src/global_planner.cpp)
+add_library(astar_global_planner_lib src/astar_global_planner.cpp)
 
 # Room to xy service
 add_executable(path_planner src/path_planner.cpp)

@@ -25,7 +25,7 @@ namespace global_planner {
     const unsigned int SAMPLE_SIZE = 10000;
 
     // Each cell of the cost map is a value from 0 to 255
-    // Anything above this threshold is not consisered for path making
+    // Anything above this threshold is consisered occupied for path making
     const unsigned char COST_THRESHOLD = 2;
     const unsigned char GOAL_COST_THRESHOLD = 50;
 
@@ -67,8 +67,18 @@ namespace global_planner {
         ROS_INFO("## - Initializing global planner - ##");
         ROS_INFO("## - Costmap origin: %f, %f", mapOriginX, mapOriginY);
 
-        // Publisher
+
         ros::NodeHandle n;
+
+        // Parameters
+        bool test;
+        n.param("test_param", test, false);
+        if (test)
+        {
+            ROS_INFO("## test_param : true ##");
+        }
+
+        // Publishers
         plan_pub = n.advertise<nav_msgs::Path>("planB", 1);
         viz_pub = n.advertise<visualization_msgs::Marker>("PRM_Network", 1);
     }
@@ -80,6 +90,7 @@ namespace global_planner {
         // Start timer
         clock_t startTime;
         startTime = clock();
+        double elapsed;
 
         // Clear out all global containers
         freeVertices.clear();
@@ -106,6 +117,8 @@ namespace global_planner {
             freeVertices.push_back(vertices[1]);
         }
 
+        // TODO: Check if straight line is feasible first
+
         ROS_INFO("Start position: %f, %f", vertices[0].xPosition, vertices[0].yPosition);
         ROS_INFO("Goal position: %f, %f", vertices[1].xPosition, vertices[1].yPosition);
 
@@ -126,11 +139,12 @@ namespace global_planner {
                 vertices[i].inFreeSpace = true;
                 freeVertexCount++;
                 freeVertices.push_back(vertices[i]);
-
-                //ROS_INFO("Node pushed: %f, %f", vertices[i].xPosition, vertices[i].yPosition);
             }
         }
-        ROS_INFO("%d free vertices generated", freeVertexCount);
+
+        elapsed = (clock() - startTime) / (double)(CLOCKS_PER_SEC / 1000);
+        double nextTime = clock();
+        ROS_INFO("%d free vertices generated in %f ms", freeVertexCount, elapsed);
 
         // Check through all free vertices and generate a network
         for (int i = 0; i < freeVertexCount; i++)
@@ -188,6 +202,10 @@ namespace global_planner {
             }
         }
 
+        elapsed = (clock() - nextTime) / (double)(CLOCKS_PER_SEC / 1000);
+        nextTime = clock();
+        ROS_INFO("Network generated in %f ms", elapsed);
+
         // Check if start and finish nodes have no neighbours
         if (freeVertices[0].neighbourIndices.size() == 0 || freeVertices[1].neighbourIndices.size() == 0)
         {
@@ -234,10 +252,22 @@ namespace global_planner {
             }
         }
 
+        elapsed = (clock() - nextTime) / (double)(CLOCKS_PER_SEC / 1000);
+        nextTime = clock();
+        ROS_INFO("Path found and refined in %f ms", elapsed);
+
         // Finally create nav path from the A* path
+        double path_length = 0.0;
         for (int i = pathFromGoal.size()-1; i >= 0; i--)
         {
             Vertex v = freeVertices[pathFromGoal[i]];
+
+            // calc length of path
+            if (i < pathFromGoal.size()-1)
+            {
+                double pathLen = distanceBetweenFreeVertices(pathFromGoal[i], pathFromGoal[i+1]);
+                path_length += pathLen;
+            }
 
             geometry_msgs::PoseStamped new_goal = goal;
             tf::Quaternion goal_quat = tf::createQuaternionFromYaw(1.54);
@@ -251,6 +281,10 @@ namespace global_planner {
 
             plan.push_back(new_goal);
         }
+
+        elapsed = (clock() - startTime) / (double)(CLOCKS_PER_SEC / 1000);
+        ROS_INFO("#### - New global path served fresh in %f ms - ####", elapsed);
+        ROS_INFO("#### - Path length is: %f m - ####", path_length);
 
         // Publish data for visualization
         visualization_msgs::Marker edgeLines;
@@ -296,10 +330,6 @@ namespace global_planner {
         // Publish all network edges and then the path found
         viz_pub.publish(edgeLines);
         plan_pub.publish(rvizPath);
-
-        double elapsed = (clock() - startTime) / (double)(CLOCKS_PER_SEC / 1000);
-
-        ROS_INFO("#### - New global path served fresh in %f ms - ####", elapsed);
 
         return (true);
     }
@@ -418,19 +448,21 @@ namespace global_planner {
     // Calculates distance between two given vertices
     double distanceBetweenVertices(Vertex pt1, Vertex pt2)
     {
-        double xDiff =  pt2.xPosition - pt1.xPosition;
-        double yDiff =  pt2.yPosition - pt1.yPosition;
+        double xDiff = pt2.xPosition - pt1.xPosition;
+        double yDiff = pt2.yPosition - pt1.yPosition;
 
         double distance = sqrt(xDiff * xDiff + yDiff * yDiff);
+        return (distance);
     }
 
     // Calculated distance between two free vertices identified by their array index
     double distanceBetweenFreeVertices(int ind1, int ind2)
     {
-        double xDiff =  freeVertices[ind1].xPosition - freeVertices[ind1].xPosition;
-        double yDiff =  freeVertices[ind2].yPosition - freeVertices[ind2].yPosition;
+        double xDiff = freeVertices[ind2].xPosition - freeVertices[ind1].xPosition;
+        double yDiff = freeVertices[ind2].yPosition - freeVertices[ind1].yPosition;
 
         double distance = sqrt(xDiff * xDiff + yDiff * yDiff);
+        return (distance);
     }
 
     // Checks the given set for the given Vertex, Vertex is identified by index within freeVertices

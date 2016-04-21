@@ -99,6 +99,7 @@
 			<param if="$(arg localization)" name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
 			<param unless="$(arg localization)" name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/>
 			<param name="Mem/MapLabelsAdded" type="string" value="true"/> <!-- Add labels to the map -->
+			<param name="Optimizer/Robust" type="string" value="true" /> <!-- Optimizes using vertigo, 
 
 			<!-- Are these even RTABMAP params? -->
 			<param name="rgb/image_transport"   type="string" value="compressed"/>
@@ -107,6 +108,7 @@
 			<!-- Localization mode -->
 			<param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
 			<param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+			<param unless="$(arg localization)" name="map_filter_radius"  type="double" value="0"/>
 
 			<!-- Initialize the Working Memory with all nodes in Long-Term Memory.
 				When false, it is initialized with nodes of the previous session -->

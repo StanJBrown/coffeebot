@@ -6,9 +6,9 @@
 	<arg name="use_laser_scanner" default="true" />
 
 	<!-- Localization-only mode -->
-  <arg name="localization"      default="false"/>
-  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
-  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>
+	<arg name="localization"      default="false"/>
+	<arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
+	<arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>
 
 	<!-- rtabmap arguments -->
 	<arg name="visual_odometry" default="false" />
@@ -44,12 +44,11 @@
 		<arg name="depth_registration" value="true" />
 	</include>
 
-	<!-- Set min and max angles for hokuyo
-  <node name="$(anon dynparam)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters hokuyo_node">
-    <param name="min_ang" type="double" value="-1.309" />
-    <param name="max_ang" type="double" value="1.309" />
-  </node>
--->
+	<!-- Set min and max angles for hokuyo -->
+	<node name="$(anon dynparam)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters hokuyo_node">
+		<param name="min_ang" type="double" value="-1.309" />
+		<param name="max_ang" type="double" value="1.309" />
+	</node>
 
 	<!-- Start laser scanner -->
 	<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen" >
@@ -60,18 +59,22 @@
 	</node>
 
 	<!-- Run the map server -->
+	<!--
 	<group ns="floor">
 		<node if="$(arg localization)" name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" >
 			<remap from="/map" to="/map_floor" />
 		</node>
 	</group>
+	-->
 
 	<!-- Run the map server -->
+	<!--
 	<group ns="building">
 		<node if="$(arg localization)" name="map_server" pkg="map_server" type="map_server" args="$(arg map_building)" >
 			<remap from="/map" to="/map_building" />
 		</node>
 	</group>
+	-->
 
 	<!-- Start rtabmap and vizualization -->
 	<group ns="rtabmap">
@@ -98,9 +101,9 @@
 			<param name="RGBD/NeighborLinkRefining" type="string" value="true"/>  <!-- Do odometry correction with consecutive laser scans -->
 			<param name="RGBD/ProximityBySpace"     type="string" value="true"/>  <!-- Local loop closure detection (using estimated position) with locations in WM -->
 			<param name="RGBD/ProximityByTime"      type="string" value="false"/> <!-- Local loop closure detection with locations in STM -->
-		  <param name="Reg/Strategy"              type="string" value="1"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
+			<param name="Reg/Strategy"              type="string" value="1"/>     <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
 			<!--param name="Vis/InlierDistance"        type="string" value="0.1"/-->   <!-- 3D visual words correspondence distance -->
-			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/> <!-- Optimize graph from initial node so /map -> /odom transform will be generated -->
+			<param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/> <!-- Optimize graph from initial node so /map -> /odom transform will be generated -->
 			<param name="Optimizer/Slam2D"          type="string" value="true"/>
 			<param name="Reg/Force3DoF"             type="string" value="true"/>
 			<param name="Mem/MapLabelsAdded"        type="string" value="true"/>
@@ -110,9 +113,13 @@
 			<param name="depth/image_transport" type="string" value="compressedDepth"/>
 
 			<!-- localization mode -->
-		  <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
-		  <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
-		  <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+			<param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+			<param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+			<param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
+
+			<!-- prevent scan from updating map -->
+			<param if="$(arg localization)" name="map_negative_poses_ignored" type="bool" value="true" />
+
 			<remap from="odom"            to="$(arg odom_topic)" />
 			<remap from="scan"            to="$(arg scan_topic)" />
 			<param name="RGBD/AngularUpdate" type="string" value="0.1" />
@@ -180,11 +187,11 @@
 	<arg name="base_local_planner" default="base_local_planner/TrajectoryPlannerROS"/>
 
 	<node if="$(arg localization)" pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-		<remap from="map" to="/floor/map" />
+		<remap from="map" to="/rtabmap/grid_map" />
 		<remap from="scan" to="$(arg scan_topic)" />
 
 		<param name="base_global_planner" value="$(arg base_global_planner)"/>
-	  <param name="base_local_planner" value="$(arg base_local_planner)"/>
+	  	<param name="base_local_planner" value="$(arg base_local_planner)"/>
 		<rosparam file="$(find coffeebot)/config/planner.yaml" command="load"/>
 
 		<!-- observation sources located in costmap_common.yaml -->

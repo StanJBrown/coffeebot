@@ -1,6 +1,6 @@
-image: "/home/jason/catkin_ws/src/coffeebot/config/3floorE5.xcf"
+image: "/home/jason/catkin_ws/src/coffeebot/config/test3.png"
 resolution: 0.075
-origin: [-23.0, -10.0, 0.0]
+origin: [-18.0, -6.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196
 negate: 0

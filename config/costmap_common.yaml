@@ -32,4 +32,4 @@ obstacles_cloud:
     }
 
 inflation:
-    inflation_radius: 0.7
+    inflation_radius: 0.5

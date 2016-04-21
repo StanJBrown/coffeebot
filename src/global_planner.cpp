@@ -22,7 +22,7 @@ namespace global_planner {
     double mapOriginY;
     double mapResolution;
 
-    const unsigned int SAMPLE_SIZE = 10000;
+    const unsigned int SAMPLE_SIZE = 1000;
 
     // Each cell of the cost map is a value from 0 to 255
     // Anything above this threshold is consisered occupied for path making

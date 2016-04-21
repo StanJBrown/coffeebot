@@ -37,7 +37,7 @@
 	<node pkg="tf" type="static_transform_publisher"
 		name="kinect_tf_publisher" args="-0.5 0 0.8 0 0 0 /user_rail_link /camera_link 10" />
 	<node pkg="tf" type="static_transform_publisher"
-		name="laser_tf_publisher" args="-0.5 0 0.5 0 0 3.14 /user_rail_link /laser 10" />
+		name="laser_tf_publisher" args="-0.5 0 0.3 0 0 3.14 /user_rail_link /laser 10" />
 
 	<!-- Start Kinect sensor -->
 	<include file="$(find freenect_launch)/launch/freenect.launch">
@@ -99,7 +99,7 @@
 			<param if="$(arg localization)" name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
 			<param unless="$(arg localization)" name="RGBD/OptimizeFromGraphEnd" type="string" value="true"/>
 			<param name="Mem/MapLabelsAdded" type="string" value="true"/> <!-- Add labels to the map -->
-			<param name="Optimizer/Robust" type="string" value="true" /> <!-- Optimizes using vertigo, 
+			<param name="Optimizer/Robust" type="string" value="true" /> <!-- Optimizes using vertigo, -->
 
 			<!-- Are these even RTABMAP params? -->
 			<param name="rgb/image_transport"   type="string" value="compressed"/>

@@ -15,7 +15,7 @@
 % on the last page of the document
 
 % The following packages can be found on http:\\www.ctan.org
-%\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{graphicx} % for pdf, bitmapped graphics files
 %\usepackage{epsfig} % for postscript graphics files
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
@@ -50,7 +50,7 @@ CoffeeBot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 
-This electronic document is a “live” template. The various components of your paper [title, text, heads, etc.] are already defined on the style sheet, as illustrated by the portions given in this document.
+
 
 \end{abstract}
 
@@ -98,7 +98,14 @@ A new ROS package was created for the coffeebot project which consisted of three
 
 Finally, RViz was used to visualize all the data being passed around inside ROS. RViz is a popular data visualization tool that is easy to configure. Custom configurations were created specifically for the coffeebot in order to make debugging quicker and easier. 
 
-The various pieces of software came together to create a functional system as shown in Figure XX. Figure XX is a simplified system architecture describing the system while in navigation mode. Navigation mode assumes a map of the environment has already been built and the robot has already localized within the map at least once.
+The various pieces of software came together to create a functional system as shown in Figure XX. Figure \ref{software_architecture} is a simplified system architecture describing the system while in navigation mode. Navigation mode assumes a map of the environment has already been built and the robot has already localized within the map at least once.
+
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=1.0\columnwidth]{Figures/ROS_node_diagram}
+		\caption{The simplified software architecture of the coffeebot.}
+		\label{software_architecture}
+	\end{figure}
 
 \section{Methodology}
 

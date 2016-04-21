@@ -28,8 +28,8 @@ using namespace std;
 ofstream MyExcelFile ("CB_INFO.xlsx", ios::trunc);
 static const float INFINIT_COST = INT_MAX; //!< cost of non connected nodes
 static const int OBSTACLE_THRESHOLD = 2;
-static const float VISITED_THRESHOLD = 0.01; // The threshold that states the cell has been visited and is now in the closed set so cant visit it again
-static const float SLEEP_TIME = 0; // sleep for 1 second
+//static const float VISITED_THRESHOLD = 0.01; // The threshold that states the cell has been visited and is now in the closed set so cant visit it again
+static const float SLEEP_TIME = 0.01; // sleep for 1 second
 bool debug=0; // flag used for debugging
 bool* visited; // same size as cost map, stores cost of cell to indicate visited
 int* cameFromCellArray;
@@ -78,8 +78,9 @@ namespace astar_cb_global_planner {
             cout << "CellArraywidth: " << cellArrayWidth << " CellArrayheight: " << cellArrayHeight << endl;
             cout << "originX: " << CMoriginX << " originY: " << CMoriginY <<endl;
             cout << "resolution: " << CMresolution;
-
-            letsSleep();
+            if(debug){
+                letsSleep();
+            }
             ros::Time begin = ros::Time::now();
             int total = 0;
             // Create visited array and cameFromCellArray
@@ -87,6 +88,7 @@ namespace astar_cb_global_planner {
             cameFromCellArray = new int[CellMapSize];
             for(unsigned int iy=0; iy<cellArrayHeight; iy++){
                 for(unsigned int ix=0; ix<cellArrayWidth; ix++){
+                    //static_cast<int>(costmap_->getCost(ix,iy));
                     visited[iy*cellArrayWidth+ix] = 0;
                     cameFromCellArray[iy*cellArrayWidth+ix] = -1; // set to -1 since cell index of cost map starts at 0.
                     total++;
@@ -347,16 +349,16 @@ namespace astar_cb_global_planner {
         bool valid = true;
         int rowID = CellIdxToCellRowID(cellIndex);
         int colID = CellIdxToCellColID(cellIndex);
-        unsigned int cost = static_cast<int>(costmap_->getCost(rowID,colID));
+        unsigned int cost = static_cast<int>(costmap_->getCost(colID,rowID));
         float cmx, cmy;
         CellIdxToCMCoord(cellIndex,cmx,cmy);
-        if(cost>=OBSTACLE_THRESHOLD){
+        if(cost>OBSTACLE_THRESHOLD){
             valid = false;
             if(debug)
                 ROS_INFO("##### cost is greater than obstacle threshold");
             return valid;
         }
-        if(visited[cellIndex]>=VISITED_THRESHOLD){
+        if(visited[cellIndex]){
             valid = false;
             if(debug)
                 ROS_INFO("##### Cell it has already been visited");

@@ -17,6 +17,7 @@
 % The following packages can be found on http:\\www.ctan.org
 \usepackage{cite}
 \usepackage{graphicx} % for pdf, bitmapped graphics files
+\usepackage{multirow}
 %\usepackage{epsfig} % for postscript graphics files
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
@@ -24,11 +25,11 @@
 %\usepackage{amssymb}  % assumes amsmath package installed
 
 \title{\LARGE \bf
-CoffeeBot
+CoffeeBot: An Autonomous Coffee Delivery Robot
 }
 
 
-\author{Jason Rebello$^{1}$ and Ian Colwell$^{2}$% <-this % stops a space
+\author{Jason Rebello and Ian Colwell% <-this % stops a space
 %\thanks{*This work was not supported by any organization}% <-this % stops a space
 %\thanks{$^{1}$Albert Author is with Faculty of Electrical Engineering, Mathematics and Computer Science,
 %        University of Twente, 7500 AE Enschede, The Netherlands
@@ -57,10 +58,10 @@ Robotics holds tremendous potential for benefiting every domain of human life. O
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION/MOTIVATION}
 
-There is a growing need for robots to operate intelligently and adapt to their changing environment without direct human supervision. The delivery chain is one of the main areas where autonomous robots have established a foothold.
-One of the most important tasks that nurses in a hospital spend a lot of time doing is giving medications to patients. Hospitals move an immense amount of materials through hallways, on elevators, in basements and to patient units. This is a complex demanding internal logistics challenge that has implications of cost, quality and safety. Automating delivery of this material generates considerable savings and efficiency. It usually requires a human to make a dedicated trip to a pharmacy that may be on a different floor of the hospital. This sort of thing is a waste of time for highly trained medical professionals, which is why a robot makes sense to have as a delivery system. 
-In this paper we will present our method at developing an autonomous robot for coffee delivery to a particular room on the third floor of engineering 5. Although the project was undertaken with the task of coffee delivery the concepts employed can be used for any other autonomous delivery system as stated above. One of the significant challenges in developing an autonomous robot is its ability to effectively localize itself in a predefined map while navigating to a specific location. We will present our approach at tackling these problems and perform a comparison of our custom Probabilistic roadmap and A-star path planning techniques in terms of optimal path generation, runtime to generate paths and ways of improvement. 
-The rest of the paper is organized as follows. In section 2, we present an overview of the various companies developing autonomous robots for industry. Section 3, describes the hardware and software used in our setup. Section 4 explains our methodology used in our project which includes the navigation stack. Section 5 discusses our custom path planners and performs a comparison of the two methods. Section 6 concludes our work and states methods for improvement and future work.
+There is a growing need for robots to operate intelligently and adapt to their changing environment without direct human supervision. While robots can be seen operating in several situations such as exploration, search and rescue, military operations, an area where robots have truly established a foothold is in industry and hospitals.
+One of the most important tasks that nurses in a hospital spend a lot of time doing is giving medications to patients. Hospitals and warehouses move an immense amount of materials through hallways, on elevators, in basements etc. This is a complex demanding internal logistics challenge that has implications of cost, quality and safety. Automating delivery of this material generates considerable savings and efficiency. It usually requires a human to make dedicated trips in order to transfer items from one place to another. This sort of thing is a waste of time for highly trained professionals, which is why a robot makes sense to have as a delivery system. 
+In this paper we will present our method at developing an autonomous robot for coffee delivery to a particular room on the third floor of engineering 5. Although the project was undertaken with the task of coffee delivery the concepts employed can be used for any other autonomous delivery system as stated above. One of the significant challenges in developing an autonomous robot is its ability to effectively localize itself in a predefined map while navigating to a specific location. We will present our approach at tackling these problems and perform a comparison of our custom Probabilistic roadmap and Grid based A-star path planning techniques.
+The rest of the paper is organized as follows. In section II, we present an overview of the several autonomous delivery robots in industry. Section III, describes the hardware and software used in our setup. Section IV explains the methodology used in our project which includes the navigation stack. Section V discusses our custom path planners and performs a comparison of the two methods. Section VI concludes our work and states methods for improvement and future work.
 
 \section{BACKGROUND WORK}
 
@@ -148,10 +149,7 @@ The navigation stack was used for path planning and navigation of the Coffeebot.
 
 \subsubsection{Costmaps}
 
-The local costmap is limited in size and is centered around the robot. This ensures dynamic objects seen in the past are not saved when returning to the area the object was first detected. Both local and global costmaps are generated using a decaying cost inflation technique. This technique assigns the highest cost to detected objects and gradually lowers the cost out to the specified inflation radius where a cost of zero is assigned which represents free space. The 2D planar size of the robot is called the ?footprint? and is considered when building the costmaps. The dimensions used for the husky is 1 meter long and 0.65 meters wide. In Figure XX below, yellow represents an occupied cell in the occupancy grid, Aqua represents a location where the robot is definitely in collision (based on the robot footprint), Red represents a location where the robot may be in collision depending on the orientation of the robot, and Blue represents a buffer zone to keep the robot away from obstacles.
-
-
-The local costmap is limited in size and is centered around the robot. This ensures dynamic objects seen in the past are not saved when returning to the area the object was first detected. Both local and global costmaps are generated using a decaying cost inflation technique. This technique assigns the highest cost to detected objects then assigns gradually lower costs out to the specified inflation radius where a cost of zero is assigned which represents free space. The 2D planar size of the robot is called the ?footprint? and is considered when building the costmaps. The dimensions used for the husky is 1 meter long and 0.65 meters wide. In Figure \ref{global_costmap} below, yellow represents an occupied cell in the occupancy grid, Aqua represents a location where the robot is definitely in collision (based on the robot footprint), Red represents a location where the robot may be in collision depending on the orientation of the robot, and Blue represents a buffer zone to keep the robot away from obstacles.
+The local costmap is limited in size and is centered around the robot. This ensures dynamic objects seen in the past are not saved when returning to the area the object was first detected. Both local and global costmaps are generated using a decaying cost inflation technique. This technique assigns the highest cost to detected objects then assigns gradually lower costs out to the specified inflation radius where a cost of zero is assigned which represents free space. The 2D planar size of the robot is called the 'footprint' and is considered when building the costmaps. The dimensions used for the husky is 1 meter long and 0.65 meters wide. In Figure \ref{global_costmap} below, yellow represents an occupied cell in the occupancy grid, Aqua represents a location where the robot is definitely in collision (based on the robot footprint), Red represents a location where the robot may be in collision depending on the orientation of the robot, and Blue represents a buffer zone to keep the robot away from obstacles.
 
 	\begin{figure}[!ht]
 		\centering
@@ -172,9 +170,9 @@ Finally, the refined path (green line in Figure \ref{PRM_planner}) is sent back 
 		\label{PRM_planner}
 	\end{figure}
 
-\subsection{A-Star Global Planner}
+\subsection{A* Global Planner}
 
-The A* algorithm combines features of uniform-cost search and pure heuristic search to efficiently compute optimal solutions. A* algorithm is a best-first search algorithm in which the cost associated with a node is f(n) = g(n) + h(n), where g(n) is the cost of the path from the initial state to node n and h(n) is the heuristic estimate or the cost of the path from node n to the goal. Thus, f(n) estimates the lowest total cost of any solution path going through node n. At each point a node with lowest f value is chosen for expansion. Ties are broken randomly. The algorithm terminates when a goal is chosen for expansion. A* algorithm guides an optimal path to a goal if the heuristic function h(n) is admissible, meaning it never over-estimates the actual cost. 
+While the PRM method performs A* on a set of sampled points, the grid based method expands each cell from the start to the goal node based on a certain cost. The A* algorithm combines features of uniform-cost search and pure heuristic search to efficiently compute optimal solutions. A* algorithm is a best-first search algorithm in which the cost associated with a node is f(n) = g(n) + h(n), where g(n) is the cost of the path from the initial state to node n and h(n) is the heuristic estimate or the cost of the path from node n to the goal. Thus, f(n) estimates the lowest total cost of any solution path going through node n. At each point a node with lowest f value is chosen for expansion. Ties are broken randomly. The algorithm terminates when a goal is chosen for expansion. A* algorithm guides an optimal path to a goal if the heuristic function h(n) is admissible, meaning it never over-estimates the actual cost. 
 
 \section{RESULTS}
 
@@ -195,22 +193,27 @@ A map of the third floor of Engineering 5 was completed. This map includes a 2D 
 		\caption{The occupancy grid map of the third floor of E5.}
 		\label{third_occ_grid}
 	\end{figure}
+	
+\subsection{Global Path Planning Comparison}
 
-The coffeebot was also able to successfully localize within the map as shown in Figure XX.
+The two global path planners were tested and compared using the gazebo simulation environment. Two different costmaps were used in the tests. One costmap was generated from a floorplan of the third floor of Engineering 5 and another was generated from the Husky playpen demo. The resulting timing and path lengths of the two planners are compared below in Table \ref{compare_table}.  
 
 \begin{table}[h]
-\caption{An Example of a Table}
-\label{table_example}
+\caption{The comparison results of the two global path planners tested on two different environments.}
+\label{compare_table}
 \begin{center}
-\begin{tabular}{|c||c|}
-\hline
-One & Two\\
-\hline
-Three & Four\\
-\hline
+\begin{tabular}{l|c|c|c|c|}
+\cline{2-5}
+                                    & \multicolumn{2}{c|}{\textbf{Time to Generate Path (ms)}} & \multicolumn{2}{c|}{\textbf{Path Length (m)}} \\ \hline
+\multicolumn{1}{|l|}{\textbf{Test Costmap and Goal}} & \textbf{Grid A*}    & \textbf{PRM}    & \textbf{Grid A*}     & \textbf{PRM}     \\ \hline
+\multicolumn{1}{|l|}{E5 Third Floor - 1} & 53.777 & 47.252 & 48.599 & 48.093 \\ \hline
+\multicolumn{1}{|l|}{E5 Third Floor - 2} & 33.363 & 29.229 & 23.189 & 22.473 \\ \hline
+\multicolumn{1}{|l|}{Husky Playpen - 1} & 90.177 & 12.885 & 13.332 & 13.778 \\ \hline
+\multicolumn{1}{|l|}{Husky Playpen - 2} & 32.581 & 3.266 & 8.591 & 8.819 \\ \hline
 \end{tabular}
 \end{center}
 \end{table}
+
 
 \section{CONCLUSION}
 

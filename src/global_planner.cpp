@@ -25,8 +25,8 @@ namespace global_planner {
     const unsigned int SAMPLE_SIZE = 10000;
 
     // Each cell of the cost map is a value from 0 to 255
-    // Anything above this threshold is consisered occupied for path making
-    const unsigned char COST_THRESHOLD = 2;
+    // Anything equal to or above this threshold is consisered occupied for path making
+    const unsigned char COST_THRESHOLD = 1;
     const unsigned char GOAL_COST_THRESHOLD = 50;
 
     // The number of nearest vertices to attempt to connect to when building network

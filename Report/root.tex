@@ -195,7 +195,7 @@ While the PRM method performs A* on a set of sampled points, the grid based meth
 
 \subsection{Mapping and Localization}
 
-A map of the third floor of Engineering 5 was completed. This map includes a 2D occupancy grid as well as an RTAB-Map database which consists of a 3D point cloud and graph based image library. The resulting occupancy grid is shown below in Figure \ref{third_occ_grid} and a portion of the 3D point cloud is shown in Figure \ref{third_point_cloud}.
+A map of the third floor of Engineering 5 was completed. This map includes a 2D occupancy grid as well as an RTAB-Map database which consists of a 3D point cloud and graph based image library. The resulting occupancy grid is shown below in Figure \ref{third_occ_grid} and the complete 3D point cloud is shown in Figure \ref{third_point_cloud}.
 
 	\begin{figure}[!ht]
 		\centering
@@ -237,19 +237,21 @@ The two global path planners were tested and compared using the gazebo simulatio
 \end{center}
 \end{table}
 
-While the PRM method appears to take a shorter time to generate path it should be noted that the PRM method requires a prior setup time to build the network. The network in the playpen consisted of 291 milestones and took on average 0.2 s to build while the network in the floor plan consisted of 3399 milestones and took on average 28 s to build. Another interesting result is that the PRM method tends to return shorter paths. This is due to the fact that the grid based A* method only looks at the 8 surrounding cells at a time. Therefore, the path is a series of smaller horizontal, vertical, or 45° segments whereas the PRM path could take a more direct path depending on the environment. One benefit of the A* method over the PRM method would be the ability to always find a path if a path exists. The PRM method is not guaranteed to find a path since it is dependant on the number of milestones available and the pre-generated network. However, the PRM performs better than A* in multi-query single map scenarios. Although the time to generate the network is significantly large, a single query on a predefined network is faster than the grid based approach.
+While the PRM method appears to take a shorter time to generate path it should be noted that the PRM method requires a prior setup time to build the network. The network in the playpen consisted of 291 milestones and took on average 0.2 s to build while the network in the floor plan consisted of 3399 milestones and took on average 28 s to build. Another interesting result is that the PRM method occasionally returns a shorter path. This is due to the fact that the grid based A* method only looks at the 8 surrounding cells at a time. Therefore, the path is a series of smaller horizontal, vertical, or 45° segments whereas the PRM path could take a more direct path depending on the environment. One benefit of the A* method over the PRM method would be the ability to always find a path if a path exists. The PRM method is not guaranteed to find a path since it is dependant on the number of milestones available and the pre-generated network. However, the PRM performs better than A* in multi-query single map scenarios. Although the time to generate the network is significantly large, a single query on a predefined network is faster than the grid based approach.
 
 \section{CONCLUSION}
 
 After running several tests, we found that while RTAB-Map is a good out-of-the-box tool for mapping, it does not provide a robust solution under various lighting conditions. This can be attributed to the fact that RTAB-Map relies mainly on the kinect sensor which is known to fail in these situations. A way to tackle this issue would be to employ the use of wide field of view cameras with some form of pre-filtering process such as histogram equalization.
+
 Although the Hokuyo laser scanner provides range measurements at a high update rate, it is limited to a 2D plane. Since obstacles below this plane fail to be detected, placement of the Hokuyo on the robot becomes critical. The use of a multibeam 3D laser scanner would help solve this problem.
+
 RTAB-Map relies on ORB detector and descriptor for recognizing features in the environment. While it detects a number of features, applying SIFT/SURF detectors would help improve matching. It was found that odometry readings from the Husky were more reliable at high speeds and travelling in a straight line as compared to readings observed during rotation.
 
 \section{FUTURE WORK}
 
 While the PRM global planner performed well there are some improvements that could be made to decrease the time took to both generate and search the map. Bridge sampling is one technique that could perform well in an office building by focusing the milestones in the hallways where they are most needed. Gaussian sampling could also have a similar effect to Bridge sampling thanks to the typical geometry of office buildings.
 
-In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities.
+In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities. Given this sort of future direction, the ability to make a robot truly autonomous and intelligent still remains an extremely challenging problem.
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens

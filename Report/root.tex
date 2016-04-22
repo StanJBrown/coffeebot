@@ -50,7 +50,7 @@ CoffeeBot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 
-Robotics holds tremendous potential for benefiting every domain of human life. Over the years, the focus of robotics has shifted from the design of a mechanical structure with the integration of electronics that can perform a small set of predefined tasks to complex machines capable of operating intelligently in everyday scenarios. This process is highly involved and requires the understanding of several key concepts in order to make it truly autonomous. In this paper we will address the main ideas such as mapping, localization and navigation for a coffee delivery unmanned ground vehicle (UGV) in an office setting. We will present a comparison of two path planners (PRM and Astar) in terms of their run-time, path generated and total distance travelled to reach a desired location.
+Robotics holds tremendous potential for benefiting every domain of human life. Over the years, the focus of robotics has shifted from the design of a simple mechanism with the integration of electronics that can perform a small set of predefined tasks to complex machines capable of operating intelligently in everyday life. The process of making a robot truly autonomous requires the understanding of several key concepts. In this paper we will address the main ideas such as mapping, localization and navigation for an autonomous coffee delivery unmanned ground vehicle (UGV) in an office setting. We will present our method and compare two custom path planners (PRM and Astar) in terms of their run-time, path generated and total distance travelled to reach a desired location.
 
 \end{abstract}
 
@@ -64,13 +64,13 @@ The rest of the paper is organized as follows. In section 2, we present an overv
 
 \section{BACKGROUND WORK}
 
-There are a host of companies that have started developing autonomous robots for industrial tasks such as manufacturing and delivery of goods.? Amazon? has undertaken the development of autonomous drones as part of its Prime Air delivery system. ?Google? has recently announced its desire to deliver packages from self-driving trucks. ?Clearpath Robotics? specializes in the design and manufacture of unmanned vehicle solutions for industrial and academic applications. ?Autonomous Solutions Inc? has provided unmanned vehicle hardware and software systems to clients in mining, industrial and military markets. More aligned with our project is the ?Tug? autonomous medical robot from ?Aethon? that delivers and transports medicines in an efficient and safe manner. Similarly, ?Panasonic? has been working on its ?Hospi? hospital delivery robot in order to ferry small and important objects and materials from one place to another. In most of these robots, the main sensors are some form of Lidar sensor (mostly 3D) that give fast response and at the same time provide good field of view. Due to its light weight, a camera is used as a primary tool for place recognition during localization.
+There are a host of companies that have started developing autonomous robots for industrial tasks such as manufacturing and delivery of goods.? Amazon? has undertaken the development of autonomous drones as part of its Prime Air delivery system. ?Google? has recently announced its desire to deliver packages from self-driving trucks. ?Clearpath Robotics? specializes in the design and manufacture of unmanned vehicle solutions for industrial and academic applications. ?Autonomous Solutions Inc? has provided unmanned vehicle hardware and software systems to clients in mining, industrial and military markets. More aligned with our project is the ?Tug? autonomous medical robot from ?Aethon? that delivers and transports medicines in an efficient and safe manner. Similarly, ?Panasonic? has been working on its ?Hospi? hospital delivery robot in order to ferry small and important objects and materials from one place to another. In most of these robots, the main sensor incorporates some sort of LiDAR (mostly 3D) that gives a fast response and at the same time provides good field of view. Due to its light weight, a camera is also frequently used as a primary tool for place recognition during localization.
 
 \section{SYSTEM OVERVIEW}
 
 \subsection{Hardware Used} 
 
-We use the Husky unmanned ground vehicle manufactured by Clearpath Robotics as our mobile robotic platform. The Husky is a four wheeled skid steer system built for both outdoor and indoor use. The advantage of using the husky is its large payload capacity and power systems that can accommodate a variety of sensors. We make use of the UTM-30LX laser scanner by Hokuyo. One of the main advantages of using this sensor is its high accuracy and angular resolution. The sensor returns a list of range measurements in the form of a 2D point cloud. This sensor is extremely useful in doing scan registration for mapping and localization. The final sensor used is the Microsoft Xbox Kinect sensor. The Kinect contains a color VGA video camera which is used to take RGB images and an infrared depth sensor that returns a 3D point cloud that aligns with the RGB image to form a complete RGB-D image. A wireless Logitech handheld controller was also used for test driving the coffeebot. A laptop was used as the main controller for the coffeebot. All communications to and from the laptop were over USB ports. The complete hardware setup is shown in Figure \ref{hardware}. 
+The Husky unmanned ground vehicle manufactured by Clearpath Robotics was used as the mobile base. The Husky is a four wheeled skid steer system built for both outdoor and indoor use. The advantage of using this platform was its large payload capacity and power systems that can accommodate a variety of sensors. We make use of the UTM-30LX laser scanner by Hokuyo to perform scan registration for mapping and localization. Some of the main advantages of using this sensor is its high accuracy and angular resolution. The sensor returns a list of range measurements in the form of a 2D point cloud. The Microsoft Xbox Kinect sensor contains a color VGA video camera which is used to take RGB images and an infrared depth sensor that returns a 3D point cloud to form a complete RGB-D image. A Lenovo Thinkpad P50 laptop was used as the main host system for the coffeebot while a wireless Logitech handheld controller was used for test driving the robot. The complete hardware setup is shown in Figure \ref{hardware}. 
 
 	\begin{figure}[!ht]
 		\centering
@@ -81,27 +81,27 @@ We use the Husky unmanned ground vehicle manufactured by Clearpath Robotics as o
 
 \subsection{Software Used}
 
-The software framework used for this project was ROS (Robot Operating System). ROS provided a convenient framework to build the coffeebot system using both existing open source ROS packages and the newly created coffeebot ROS package. The most important ROS packages used are briefly mentioned below, more detail will be provided in the corresponding section that utilizes the packages. The system architecture is then described after the package descriptions.
+ROS (Robot Operating System) provided a convenient framework to build the coffeebot system using both existing open source ROS packages and the newly created coffeebot package. The important ROS packages used with the coffeebot are briefly mentioned below. An overview of the system architecture is then discussed.
 
 \subsubsection{RTAB-Map}
 
-RTAB-Map is used for mapping the environment and then localizing within it. RTAB-Map stands for "Real-Time Appearance-Based Mapping" and is a RGB-D Graph-Based SLAM approach based on an incremental appearance-based loop closure detector~\cite{rtabmap2014}.
-This project used rtabmap for two main functions. First, mapping was performed of the environment in which the robot will be operated. RTAB-Map is capable of generating both a 3D point cloud map and also a 2D occupancy grid that is aligned with the point cloud. The map generated by RTAB-Map also contains a graph based image library. Feature extraction is used on the image library for loop closure detection. Second, localization within the generated map was another core function provided by RTAB-Map. The localization function allowed the robot to be located within the previously built occupancy grid which is essential for path planning.
+This package was used as our main tool for map generation and localization in the environment. RTAB-Map stands for "Real-Time Appearance-Based Mapping" and is a RGB-D Graph-Based SLAM approach based on an incremental appearance-based loop closure detector~\cite{rtabmap2014}. The loop closure detector uses a bag-of-words approach to determinate how likely a new image comes from a previous location or a new location. When a loop closure hypothesis is accepted, a new constraint is added to the map's graph, then a graph optimizer minimizes the errors in the map. A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environments can be met. This package was used to generate a 3D point cloud of the environment and a 2D occupancy grid map for navigation.
 
 \subsubsection{ROS Navigation Stack}
 
-The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The 'move\_base' ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot. 
+The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously through the environment. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The ?move\_base? ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot. 
 
 \subsubsection{Coffeebot}
 
-A new ROS package was created for the coffeebot project which consisted of three main parts. Each part will be covered in more detail in the corresponding section of this report. The first important part of the package is the launch files. Launch files were created to run the coffeebot, run husky simulations, and build maps from previously recorded data. Second, a ROS service was created to issue navigation goals based on room number requests. Third, a global path planner was written as a plugin to the navigation stack. 
+A new ROS package was created for the coffeebot project which consisted of three main parts. The first part is composed of launch files that were used for running the simulations and other packages needed for mapping, localization and planning. Second, a ROS service was created to issue navigation goals based on room number requests. Third, a global path planner was written as a plugin to the navigation stack. Each part will be covered in more detail in the corresponding section of this report. 
 
 \subsubsection{RViz}
 
-Finally, RViz was used to visualize all the data being passed around inside ROS. RViz is a popular data visualization tool that is easy to configure. Custom configurations were created specifically for the coffeebot in order to make debugging quicker and easier. 
+RViz was used as a visualization tool for data passed through various ROS topics. RViz has gained popularity due to its easy to configure capabilities. Custom configurations were created specifically for the coffeebot in order to make debugging quicker and easier. 
 
-The various pieces of software came together to create a functional system as shown in Figure . Figure XX is a simplified system architecture describing the system while in navigation mode. Figure XX shows the relevant transforms of the system. When the coffeebot is in navigation mode, the RTAB-Map ROS node is receiving input from the laser scanner, kinect, and the odometry measurements from the Husky. RTAB-Map uses this data to estimate a position of the coffeebot relative to the predefined map. Once the first successful feature match (loop closure) is detected then RTAB-Map publishes the occupancy grid and localizes the robot within the map. Once the occupancy grid is published, the navigation stack subscribes to it and creates the global cost map. Assuming the occupancy grid is not updated, the global cost map is only generated once and remains static throughout the operation session. The navigation stack also creates a local costmap that is updated four times a second using data from the Kinect and laser scanner. The local costmap is constructed using both laser scanner and kinect data which allows the robot to avoid obstacles that do not appear in the plane of the laser scanner. 
-Global paths can be created once the global cost map is available to the navigation stack. A global path is generated using a global path planner and only takes into account the global cost map. Once the global path is generated through the global costmap, a local planner generates trajectories through the local costmap that track the global path. If there is poor alignment between the local and global costmaps, the local planning may fail or get stuck. Finally, the local trajectories are then sent directly to the 'husky\_base' ROS node to be executed by the husky. 
+Figure \ref{software_architecture} is a simplified architecture describing the system while in navigation mode. Figure \ref{transform_tree} shows the relevant transforms of the system. As can be seen from the figure, the RTAB-Map node receives input from the laser scanner, kinect, and the odometry measurements from the Husky. RTAB-Map uses this data to estimate a position of the coffeebot relative to the predefined map. Once the first successful feature match (loop closure) is detected, RTAB-Map publishes the occupancy grid and localizes the robot within the map.  The navigation stack then transforms this occupancy grid into a static global cost map. The navigation stack also creates a local costmap that is updated four times a second using data from the Kinect and laser scanner. Using both laser scanner and kinect data allows the robot to avoid obstacles that do not appear in the plane of the laser scanner. 
+
+A global path is generated using a global path planner and only takes into account the global cost map. Once the global path is generated through the global costmap, a local planner generates trajectories through the local costmap that track the global path. If the local planner encounters an obstacle that was not present in the global cost map, a new plan is generated. Finally, the local trajectories are then sent directly to the ?move\_base? node to be executed by the husky. 
 
 	\begin{figure}[!ht]
 		\centering
@@ -121,13 +121,12 @@ Global paths can be created once the global cost map is available to the navigat
 
 \subsection{Mapping}
 
-Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTabmap as described in Section 3 while utilizing g2o and vertigo. The ?generalized graph optimization? (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTabmap mainly relies on the detection of SURF features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning.
+Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The ?generalized graph optimization? (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF) features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
 
-*** 1) Map of whole floor 2) zoomed in version of hallway 3) Occupancy grid *****
 
 \subsection{Localization}
 
-Once a map of the environment is completed, it is essential to be able to localize the robot within the existing map each time the robot is restarted. Without localization, the previously generated map is useless for navigation purposes. Fortunately, RTAB-Map includes a localization mode that works very similar to the mapping mode. In localization mode, feature matches are detected (Figure \ref{localization}) between the saved image library and the input from the RGB-D camera (kinect). If sufficient matching is found then an estimate is made on the position of the robot within the map. This is very similar to the loop closure detection performed in mapping mode, the only difference being that no new constraints are added to the graph. Once the first successful feature match (loop closure) is detected then RTAB-Map publishes the occupancy grid and updates the 'map' transform which locates the robot within the map relative to the starting location of the robot ('odom' transform) as shown in Figure
+Once a map of the environment is completed, it is essential to be able to localize the robot within the existing map each time the robot is restarted. Without reliable localization, the previously generated map is useless for navigation purposes. Fortunately, RTAB-Map includes a localization mode that works very similar to the mapping mode. In localization mode, feature matches are detected (Figure \ref{localization}) between the saved image library and the input from the RGB-D camera (kinect). If sufficient matches are found then an estimate is made on the position of the robot within the map. This is very similar to the loop closure detection performed in mapping mode, except that no new constraints are added to the graph. Once the first successful feature match (loop closure) is detected, the original map reference frame is established with regard to the current odometry frame which leads to localization of the robot. see Figure \ref{transforms}
 
 	\begin{figure}[!ht]
 		\centering
@@ -145,9 +144,13 @@ Once a map of the environment is completed, it is essential to be able to locali
 
 \subsection{Planning/Navigation}
 
-The navigation stack was used for path planning and navigation of the Coffeebot. The stack mainly consists of both a local and global costmap and a both a local and global path planner. The global costmap is generated from the predefined occupancy grid and the local costmap is generated live based on sensor data. A small ROS service was also created that issues goal locations based on room number requests. The service simply runs in a terminal and only takes one request at a time. As part of the navigation to various rooms, two global path planning algorithms were developed and compared. Both planners were created as global planner plugins to the ROS navigation stack for easy integration with ROS.
+The navigation stack was used for path planning and navigation of the Coffeebot. The stack mainly consists of both a local and global costmap and a local and global path planner. The global costmap is generated from the predefined occupancy grid and the local costmap is generated live based on sensor data. A small ROS service was also created that issues goal locations based on room number requests. The service simply runs in a terminal and only takes one request at a time. As part of the navigation to various rooms, two global path planning algorithms were developed and compared. Both planners were created as global planner plugins to the ROS navigation stack for easy integration with ROS.
 
 \subsubsection{Costmaps}
+
+The local costmap is limited in size and is centered around the robot. This ensures dynamic objects seen in the past are not saved when returning to the area the object was first detected. Both local and global costmaps are generated using a decaying cost inflation technique. This technique assigns the highest cost to detected objects and gradually lowers the cost out to the specified inflation radius where a cost of zero is assigned which represents free space. The 2D planar size of the robot is called the ?footprint? and is considered when building the costmaps. The dimensions used for the husky is 1 meter long and 0.65 meters wide. In Figure XX below, yellow represents an occupied cell in the occupancy grid, Aqua represents a location where the robot is definitely in collision (based on the robot footprint), Red represents a location where the robot may be in collision depending on the orientation of the robot, and Blue represents a buffer zone to keep the robot away from obstacles.
+
+
 The local costmap is limited in size and is centered around the robot. This ensures dynamic objects seen in the past are not saved when returning to the area the object was first detected. Both local and global costmaps are generated using a decaying cost inflation technique. This technique assigns the highest cost to detected objects then assigns gradually lower costs out to the specified inflation radius where a cost of zero is assigned which represents free space. The 2D planar size of the robot is called the ?footprint? and is considered when building the costmaps. The dimensions used for the husky is 1 meter long and 0.65 meters wide. In Figure \ref{global_costmap} below, yellow represents an occupied cell in the occupancy grid, Aqua represents a location where the robot is definitely in collision (based on the robot footprint), Red represents a location where the robot may be in collision depending on the orientation of the robot, and Blue represents a buffer zone to keep the robot away from obstacles.
 
 	\begin{figure}[!ht]
@@ -209,14 +212,15 @@ Three & Four\\
 \end{center}
 \end{table}
 
-\section{CONCLUSION AND FUTURE WORK}
+\section{CONCLUSION}
 
-In the future there will be a need for teams of small, agile autonomous robotic units to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the coffeebot to communicate with quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks. However if the robot can track a ?master? it will have the ability to learn new tasks.
+After running several tests, we found that while RTAB-Map is a good out-of-the-box tool for mapping, it does not provide a robust solution under various lighting conditions. This can be attributed to the fact that RTAB-Map relies mainly on the kinect sensor which is known to fail in these situations. A way to tackle this issue would be to employ the use of wide field of view cameras with some form of pre-filtering process such as histogram equalization.
+Although the Hokuyo laser scanner provides range measurements at a high update rate, it is limited to a 2D plane. Since obstacles below this plane fail to be detected, placement of the Hokuyo on the robot becomes critical. The use of a multibeam 3D laser scanner would help solve this problem.
+RTAB-Map relies on ORB detector and descriptor for recognizing features in the environment. While it detects a number of features, applying SIFT/SURF detectors would help improve matching. It was found that odometry readings from the Husky were more reliable at high speeds and travelling in a straight line as compared to readings observed during rotation.
 
+\section{FUTURE WORK}
 
-\section{CONCLUSIONS}
-
-A conclusion section is not required. Although a conclusion may review the main points of the paper, do not replicate the abstract as the conclusion. A conclusion might elaborate on the importance of the work or suggest applications and extensions. 
+In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a ?master? it will have the ability to learn new responsibilities.
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
@@ -228,17 +232,13 @@ A conclusion section is not required. Although a conclusion may review the main 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{APPENDIX}
-
-Appendixes should appear before the acknowledgment.
-
 \section*{ACKNOWLEDGMENT}
 
-blah blah
+test citations:
+
+~\cite{ORB}
+~\cite{target}
+~\cite{3Dshape}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

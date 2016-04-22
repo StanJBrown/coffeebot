@@ -197,6 +197,9 @@ namespace astar_cb_global_planner {
             //letsSleep();
             //letsSleep();
             astar_runtime = ros::Time::now();
+            clock_t startTime;
+            startTime = clock();
+            double elapsed;
             if(AStarPlanner(startCellIdx,goalCellIdx)){ // Call Astar here. If Astar returns true we have a plan
                 //cout << "Astar found a path in " << ros::Time::now()-astar_runtime << endl;
                 ROS_INFO("##### Astar found a path");
@@ -218,6 +221,8 @@ namespace astar_cb_global_planner {
                 }
                 //letsSleep();
                 //letsSleep();
+                elapsed = (clock() - startTime) / (double)(CLOCKS_PER_SEC / 1000);
+                cout << "Astar with clock timing " << elapsed << " seconds" << endl;
                 cout << "Astar found a path in " << ros::Time::now()-astar_runtime << " seconds"<< endl;
                 nav_msgs::Path rvizPath;
                 rvizPath.poses.resize(plan.size());

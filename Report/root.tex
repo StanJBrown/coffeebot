@@ -18,6 +18,7 @@
 \usepackage{cite}
 \usepackage{graphicx} % for pdf, bitmapped graphics files
 \usepackage{multirow}
+\usepackage{csquotes}
 %\usepackage{epsfig} % for postscript graphics files
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
@@ -56,27 +57,37 @@ Robotics holds tremendous potential for benefiting every domain of human life. O
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{INTRODUCTION/MOTIVATION}
+\section{INTRODUCTION}
 
 There is a growing need for robots to operate intelligently and adapt to their changing environment without direct human supervision. While robots can be seen operating in several situations such as exploration, search and rescue, military operations, an area where robots have truly established a foothold is in industry and hospitals.
+
 One of the most important tasks that nurses in a hospital spend a lot of time doing is giving medications to patients. Hospitals and warehouses move an immense amount of materials through hallways, on elevators, in basements etc. This is a complex demanding internal logistics challenge that has implications of cost, quality and safety. Automating delivery of this material generates considerable savings and efficiency. It usually requires a human to make dedicated trips in order to transfer items from one place to another. This sort of thing is a waste of time for highly trained professionals, which is why a robot makes sense to have as a delivery system. 
+
 In this paper we will present our method at developing an autonomous robot for coffee delivery to a particular room on the third floor of engineering 5. Although the project was undertaken with the task of coffee delivery the concepts employed can be used for any other autonomous delivery system as stated above. One of the significant challenges in developing an autonomous robot is its ability to effectively localize itself in a predefined map while navigating to a specific location. We will present our approach at tackling these problems and perform a comparison of our custom Probabilistic roadmap and Grid based A-star path planning techniques.
-The rest of the paper is organized as follows. In section II, we present an overview of the several autonomous delivery robots in industry. Section III, describes the hardware and software used in our setup. Section IV explains the methodology used in our project which includes the navigation stack. Section V discusses our custom path planners and performs a comparison of the two methods. Section VI concludes our work and states methods for improvement and future work.
+
+The rest of the paper is organized as follows. In section II, we present an overview of the several autonomous delivery robots in industry. Section III, describes the hardware and software used in our setup. Section IV explains the methodology used in our project which includes the navigation stack. Section V discusses results of our custom path planners and performs a comparison of the two methods. Section VI concludes our work and states methods for improvement and future work.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=1.0\columnwidth]{Figures/hardware_setup}
+	\caption{The coffeebot.}
+	\label{hardware}
+\end{figure}
 
 \section{BACKGROUND WORK}
 
-There are a host of companies that have started developing autonomous robots for industrial tasks such as manufacturing and delivery of goods.? Amazon? has undertaken the development of autonomous drones as part of its Prime Air delivery system. ?Google? has recently announced its desire to deliver packages from self-driving trucks. ?Clearpath Robotics? specializes in the design and manufacture of unmanned vehicle solutions for industrial and academic applications. ?Autonomous Solutions Inc? has provided unmanned vehicle hardware and software systems to clients in mining, industrial and military markets. More aligned with our project is the ?Tug? autonomous medical robot from ?Aethon? that delivers and transports medicines in an efficient and safe manner. Similarly, ?Panasonic? has been working on its ?Hospi? hospital delivery robot in order to ferry small and important objects and materials from one place to another. In most of these robots, the main sensor incorporates some sort of LiDAR (mostly 3D) that gives a fast response and at the same time provides good field of view. Due to its light weight, a camera is also frequently used as a primary tool for place recognition during localization.
+There are a host of companies that have started developing autonomous robots for industrial tasks such as manufacturing and delivery of goods.\enquote*{Amazon} has undertaken the development of autonomous drones as part of its Prime Air delivery system. \enquote*{Google} has recently announced its desire to deliver packages from self-driving trucks. \enquote*{Clearpath Robotics} specializes in the design and manufacture of unmanned vehicle solutions for industrial and academic applications. \enquote*{Autonomous Solutions Inc} has provided unmanned vehicle hardware and software systems to clients in mining, industrial and military markets. More aligned with our project is the \enquote*{Tug} autonomous medical robot from \enquote*{Aethon} that delivers and transports medicines in an efficient and safe manner. Similarly, \enquote*{Panasonic} has been working on its \enquote*{Hospi} hospital delivery robot in order to ferry small and important objects and materials from one place to another. In most of these robots, the main sensor incorporates some sort of LiDAR (mostly 3D) that gives a fast response and at the same time provides good field of view. Due to its light weight, a camera is also frequently used as a primary tool for place recognition during localization.
 
 \section{SYSTEM OVERVIEW}
 
 \subsection{Hardware Used} 
 
 The Husky unmanned ground vehicle manufactured by Clearpath Robotics was used as the mobile base. The Husky is a four wheeled skid steer system built for both outdoor and indoor use. The advantage of using this platform was its large payload capacity and power systems that can accommodate a variety of sensors. We make use of the UTM-30LX laser scanner by Hokuyo to perform scan registration for mapping and localization. Some of the main advantages of using this sensor is its high accuracy and angular resolution. The sensor returns a list of range measurements in the form of a 2D point cloud. The Microsoft Xbox Kinect sensor contains a color VGA video camera which is used to take RGB images and an infrared depth sensor that returns a 3D point cloud to form a complete RGB-D image. A Lenovo Thinkpad P50 laptop was used as the main host system for the coffeebot while a wireless Logitech handheld controller was used for test driving the robot. The complete hardware setup is shown in Figure \ref{hardware}. 
-
+	
 	\begin{figure}[!ht]
 		\centering
-		\includegraphics[width=1.0\columnwidth]{Figures/hardware_setup}
-		\caption{The coffeebot.}
+		\includegraphics[width=1.0\columnwidth]{Figures/lidarKinect}
+		\caption{(a) and (b) show data received from the sensors }
 		\label{hardware}
 	\end{figure}
 
@@ -231,7 +242,7 @@ RTAB-Map relies on ORB detector and descriptor for recognizing features in the e
 
 \section{FUTURE WORK}
 
-In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a ?master? it will have the ability to learn new responsibilities.
+In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities.
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens

@@ -87,7 +87,7 @@ The Husky unmanned ground vehicle manufactured by Clearpath Robotics was used as
 	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=1.0\columnwidth]{Figures/lidarKinect}
-		\caption{(a) and (b) show data received from the sensors }
+		\caption{Data (a) and field of view (b) of the lidar and kinect sensors.}
 		\label{hardware}
 	\end{figure}
 
@@ -140,7 +140,7 @@ A global path is generated using a global path planner and only takes into accou
 
 \subsection{Mapping}
 
-Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The \enquote*{generalized graph optimization} (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF) features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
+Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The \enquote*{generalized graph optimization} (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions~\cite{G2O}. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF)~\cite{ORB} features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
 
 \subsection{Localization}
 

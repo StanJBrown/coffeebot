@@ -108,7 +108,7 @@ This package was used as our main tool for map generation and localization in th
 
 \subsubsection{ROS Navigation Stack}
 
-The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously through the environment. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The ?move\_base? ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot. 
+The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously through the environment. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The \enquote*{move\_base} ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot. 
 
 \subsubsection{Coffeebot}
 
@@ -120,7 +120,7 @@ RViz was used as a visualization tool for data passed through various ROS topics
 
 Figure \ref{software_architecture} is a simplified architecture describing the system while in navigation mode. Figure \ref{transform_tree} shows the relevant transforms of the system. As can be seen from the figure, the RTAB-Map node receives input from the laser scanner, kinect, and the odometry measurements from the Husky. RTAB-Map uses this data to estimate a position of the coffeebot relative to the predefined map. Once the first successful feature match (loop closure) is detected, RTAB-Map publishes the occupancy grid and localizes the robot within the map.  The navigation stack then transforms this occupancy grid into a static global cost map. The navigation stack also creates a local costmap that is updated four times a second using data from the Kinect and laser scanner. Using both laser scanner and kinect data allows the robot to avoid obstacles that do not appear in the plane of the laser scanner. 
 
-A global path is generated using a global path planner and only takes into account the global cost map. Once the global path is generated through the global costmap, a local planner generates trajectories through the local costmap that track the global path. If the local planner encounters an obstacle that was not present in the global cost map, a new plan is generated. Finally, the local trajectories are then sent directly to the ?move\_base? node to be executed by the husky. 
+A global path is generated using a global path planner and only takes into account the global cost map. Once the global path is generated through the global costmap, a local planner generates trajectories through the local costmap that track the global path. If the local planner encounters an obstacle that was not present in the global cost map, a new plan is generated. Finally, the local trajectories are then sent directly to the \enquote*{move\_base} node to be executed by the husky. 
 
 	\begin{figure}[!ht]
 		\centering
@@ -140,8 +140,7 @@ A global path is generated using a global path planner and only takes into accou
 
 \subsection{Mapping}
 
-Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The ?generalized graph optimization? (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF) features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
-
+Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The \enquote*{generalized graph optimization} (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF) features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
 
 \subsection{Localization}
 
@@ -248,7 +247,7 @@ RTAB-Map relies on ORB detector and descriptor for recognizing features in the e
 
 \section{FUTURE WORK}
 
-While the PRM global planer performed well there are some improvements that could be made to decrease the time took to both generate and search the map. Bridge sampling is one technique that could perform well in an office building by focusing the milestones in the hallways where they are most needed. Gaussian sampling could also have a similar effect to Bridge sampling thanks to the typical geometry of office buildings.
+While the PRM global planner performed well there are some improvements that could be made to decrease the time took to both generate and search the map. Bridge sampling is one technique that could perform well in an office building by focusing the milestones in the hallways where they are most needed. Gaussian sampling could also have a similar effect to Bridge sampling thanks to the typical geometry of office buildings.
 
 In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities.
 

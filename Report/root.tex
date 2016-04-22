@@ -6,7 +6,7 @@
 
 %\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
 
-\IEEEoverridecommandlockouts                              % This command is only needed if 
+\IEEEoverridecommandlockouts                              % This command is only needed if
                                                           % you want to use the \thanks command
 
 \overrideIEEEmargins                                      % Needed to meet printer requirements.
@@ -61,7 +61,7 @@ Robotics holds tremendous potential for benefiting every domain of human life. O
 
 There is a growing need for robots to operate intelligently and adapt to their changing environment without direct human supervision. While robots can be seen operating in several situations such as exploration, search and rescue and military operations; an area where robots have truly established a foothold is in industry and hospitals.
 
-One of the most important tasks that nurses in a hospital spend a lot of time doing is giving medications to patients. Hospitals and warehouses move an immense amount of materials through hallways, on elevators, in basements etc. This is a complex demanding internal logistics challenge that has implications of cost, quality and safety. Automating delivery of this material generates considerable savings and efficiency. It usually requires a human to make dedicated trips in order to transfer items from one place to another. This sort of thing is a waste of time for highly trained professionals, which is why a robot makes sense to have as a delivery system. 
+One of the most important tasks that nurses in a hospital spend a lot of time doing is giving medications to patients. Hospitals and warehouses move an immense amount of materials through hallways, on elevators, in basements etc. This is a complex demanding internal logistics challenge that has implications of cost, quality and safety. Automating delivery of this material generates considerable savings and efficiency. It usually requires a human to make dedicated trips in order to transfer items from one place to another. This sort of thing is a waste of time for highly trained professionals, which is why a robot makes sense to have as a delivery system.
 
 In this paper we will present our method at developing an autonomous robot for coffee delivery to a particular room on the third floor of engineering 5. Although the project was undertaken with the task of coffee delivery the concepts employed can be used for any other autonomous delivery system as stated above. One of the significant challenges in developing an autonomous robot is its ability to effectively localize itself in a predefined map while navigating to a specific location. We will present our approach at tackling these problems and perform a comparison of our custom Probabilistic roadmap and Grid based A* path planning techniques.
 
@@ -80,14 +80,14 @@ There are a host of companies that have started developing autonomous robots for
 
 \section{SYSTEM OVERVIEW}
 
-\subsection{Hardware Used} 
+\subsection{Hardware Used}
 
-The Husky unmanned ground vehicle manufactured by Clearpath Robotics was used as the mobile base. The Husky is a four wheeled skid steer system built for both outdoor and indoor use. The advantage of using this platform was its large payload capacity and power systems that can accommodate a variety of sensors. We make use of the UTM-30LX laser scanner by Hokuyo to perform scan registration for mapping and localization. Some of the main advantages of using this sensor is its high accuracy and angular resolution. The sensor returns a list of range measurements in the form of a 2D point cloud. The Microsoft Xbox Kinect sensor contains a color VGA video camera which is used to take RGB images and an infrared depth sensor that returns a 3D point cloud to form a complete RGB-D image. A Lenovo Thinkpad P50 laptop was used as the main host system for the coffeebot while a wireless Logitech handheld controller was used for test driving the robot. The complete hardware setup is shown in Figure \ref{hardware}. An example of the data from the Hokuyo sensor and Kinect sensor is shown in Figure \ref{kinectLaser}. 
-	
+The Husky unmanned ground vehicle manufactured by Clearpath Robotics was used as the mobile base. The Husky is a four wheeled skid steer system built for both outdoor and indoor use. The advantage of using this platform was its large payload capacity and power systems that can accommodate a variety of sensors. We make use of the UTM-30LX laser scanner by Hokuyo to perform scan registration for mapping and localization. Some of the main advantages of using this sensor is its high accuracy and angular resolution. The sensor returns a list of range measurements in the form of a 2D point cloud. The Microsoft Xbox Kinect sensor contains a color VGA video camera which is used to take RGB images and an infrared depth sensor that returns a 3D point cloud to form a complete RGB-D image. A Lenovo Thinkpad P50 laptop was used as the main host system for the coffeebot while a wireless Logitech handheld controller was used for test driving the robot. The complete hardware setup is shown in Figure \ref{hardware}. An example of the data from the Hokuyo sensor and Kinect sensor is shown in Figure \ref{kinectLaser}.
+
 	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=1.0\columnwidth]{Figures/lidarKinect}
-		\caption{(a) and (b) show data received from the sensors }
+		\caption{Data (a) and field of view (b) of the lidar and kinect sensors.}
 		\label{kinectLaser}
 	\end{figure}
 
@@ -99,28 +99,28 @@ ROS (Robot Operating System) provided a convenient framework to build the coffee
 
 This package was used as our main tool for map generation and localization in the environment. RTAB-Map stands for "Real-Time Appearance-Based Mapping" and is a RGB-D Graph-Based SLAM approach based on an incremental appearance-based loop closure detector~\cite{rtabmap2014}. The loop closure detector uses a bag-of-words approach to determinate how likely a new image comes from a previous location or a new location. When a loop closure hypothesis is accepted, a new constraint is added to the map's graph, then a graph optimizer minimizes the errors in the map. A memory management approach is used to limit the number of locations used for loop closure detection and graph optimization, so that real-time constraints on large-scale environments can be met. This package was used to generate a 3D point cloud of the environment and a 2D occupancy grid map for navigation. Figure \ref{rtabmap_point_cloud} below shows a 3D point cloud and occupancy grid of a room in Engineering 5 generated by RTAB-Map.
 
-\begin{figure}[!ht]
-	\centering
-	\includegraphics[width=1.0\columnwidth]{Figures/3D_Map}
-	\caption{3D point cloud generated from RTAB-Map.}
-	\label{rtabmap_point_cloud}
-\end{figure}
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=1.0\columnwidth]{Figures/3D_Map}
+		\caption{3D point cloud generated from RTAB-Map.}
+		\label{rtabmap_point_cloud}
+	\end{figure}
 
 \subsubsection{ROS Navigation Stack}
 
-The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously through the environment. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The \enquote*{move\_base} ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot. 
+The ROS navigation stack is a set of ROS packages designed for moving a robot autonomously through the environment. The stack primarily consists of cost map generation for obstacle avoidance and path planning/execution for moving the robot. The \enquote*{move\_base} ROS node was used to tie all the navigation stack functions together and issue commands to drive the robot.
 
 \subsubsection{Coffeebot}
 
-A new ROS package was created for the coffeebot project which consisted of three main parts. The first part is composed of launch files that were used for running the simulations and other packages needed for mapping, localization and planning. Second, a ROS service was created to issue navigation goals based on room number requests. Third, a global path planner was written as a plugin to the navigation stack. Each part will be covered in more detail in the corresponding section of this report. 
+A new ROS package was created for the coffeebot project which consisted of three main parts. The first part is composed of launch files that were used for running the simulations and other packages needed for mapping, localization and planning. Second, a ROS service was created to issue navigation goals based on room number requests. Third, a global path planner was written as a plugin to the navigation stack. Each part will be covered in more detail in the corresponding section of this report.
 
 \subsubsection{RViz}
 
-RViz was used as a visualization tool for data passed through various ROS topics. RViz has gained popularity due to its easy to configure capabilities. Custom configurations were created specifically for the coffeebot in order to make debugging quicker and easier. 
+RViz was used as a visualization tool for data passed through various ROS topics. RViz has gained popularity due to its easy to configure capabilities. Custom configurations were created specifically for the coffeebot in order to make debugging quicker and easier.
 
-Figure \ref{software_architecture} is a simplified architecture describing the system while in navigation mode. Figure \ref{transform_tree} shows the relevant transforms of the system. As can be seen from the figure, the RTAB-Map node receives input from the laser scanner, kinect, and the odometry measurements from the Husky. RTAB-Map uses this data to estimate a position of the coffeebot relative to the predefined map. Once the first successful feature match (loop closure) is detected, RTAB-Map publishes the occupancy grid and localizes the robot within the map.  The navigation stack then transforms this occupancy grid into a static global cost map. The navigation stack also creates a local costmap that is updated four times a second using data from the Kinect and laser scanner. Using data from both these sources allows the robot to avoid obstacles that do not appear in the plane of the laser scanner. 
+Figure \ref{software_architecture} is a simplified architecture describing the system while in navigation mode. Figure \ref{transform_tree} shows the relevant transforms of the system. As can be seen from the figure, the RTAB-Map node receives input from the laser scanner, kinect, and the odometry measurements from the Husky. RTAB-Map uses this data to estimate a position of the coffeebot relative to the predefined map. Once the first successful feature match (loop closure) is detected, RTAB-Map publishes the occupancy grid and localizes the robot within the map.  The navigation stack then transforms this occupancy grid into a static global cost map. The navigation stack also creates a local costmap that is updated four times a second using data from the Kinect and laser scanner. Using data from both these sources allows the robot to avoid obstacles that do not appear in the plane of the laser scanner.
 
-A global path is generated using a global path planner and only takes into account the global cost map. Once this path is generated, a local planner generates trajectories through the local costmap that track the global path. If the local planner encounters an obstacle that was not present in the global cost map, a new plan is generated. Finally, the local trajectories are then sent directly to the \enquote*{move\_base} node to be executed by the husky. 
+A global path is generated using a global path planner and only takes into account the global cost map. Once this path is generated, a local planner generates trajectories through the local costmap that track the global path. If the local planner encounters an obstacle that was not present in the global cost map, a new plan is generated. Finally, the local trajectories are then sent directly to the \enquote*{move\_base} node to be executed by the husky.
 
 	\begin{figure}[!ht]
 		\centering
@@ -128,7 +128,7 @@ A global path is generated using a global path planner and only takes into accou
 		\caption{Simplified software architecture of the coffeebot.}
 		\label{software_architecture}
 	\end{figure}
-	
+
 	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=1.0\columnwidth]{Figures/ROS_TF_diagram}
@@ -140,7 +140,7 @@ A global path is generated using a global path planner and only takes into accou
 
 \subsection{Mapping}
 
-Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The \enquote*{generalized graph optimization} (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF) features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP) optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
+Autonomous robots operating in real life settings must be able to navigate in large, unstructured, dynamic and unknown spaces. To do so they must build a map of their operating environment. A map of the 3rd floor of Engineering 5 was built with the help of RTAB-Map as described in Section 3 while utilizing g2o and vertigo. The \enquote*{generalized graph optimization} (g2o) framework is an open-source C++ framework for optimizing graph-based nonlinear error functions~\cite{G2O}. Vertigo is a C++ extension that enables g2o to solve pose graph SLAM problems in 2D and 3D despite a large number of false positive loop closure constraints~\cite{vertigo}. RTAB-Map mainly relies on the detection of ORB (Oriented FAST and Robust BRIEF)~\cite{ORB} features in order extract visual words from the scene. Since the robot is constrained to operate in a single plane, the transformation can be refined with 2D iterative-closest-point (ICP)~\cite{3Dshape} optimization using laser scans. With the help of ICP an occupancy grid map is generated. This grid map will then be used to generate the static global cost map during path planning. However, as the response from the laser scanner becomes unreliable due to poor reflection from glass surfaces, a static map using the floor plan of the building was published. This static map will be used to generate the global cost map as shown in the results section.
 
 \subsection{Localization}
 
@@ -178,7 +178,7 @@ The local costmap is limited in size and is centered around the robot. This ensu
 \subsection{Global PRM Planner}
 
 A custom global planner was created to generate paths for the coffeebot. The planner utilized a global costmap provided by the navigation stack to find paths between start and goal locations while avoiding areas of cost. The Probabilistic Roadmap (PRM) technique was utilized to generate a path. Creating a Probabilistic Road Maps starts with randomly sampling either the configuration space or the physical environment of the robot. While the Husky is non-holonomic, it is able to turn on the spot. For this reason, and to avoid unnecessary over complication, it was decided to sample over the environment space instead of the configuration space. Each random sample consisted of a world coordinate on the global cost map (both an X and Y position in meters). As each sample is created, the corresponding cell of the costmap is checked for a cost. If the cost is less than the allowable cost threshold then the sample is added to a list of milestones. The start and goal locations are also added as milestones if they are located in cells below this threshold. The completed milestone list is then iterated over to find the 20 nearest milestones to the current one being checked. A line to each of the nearest milestones is traced over the costmap using the bresenham line algorithm. While the line is being traced, each costmap cell in the line is checked to determine if the cost of the cell is greater than the threshold. The lines between milestones that can be traced without passing over costly cells are then added as edges in the roadmap (red lines in Figure \ref{PRM_planner}). Once all the available edges are created a graph based A* search algorithm is employed to find the shortest path through the network. The final step of the path generation is path refinement. The path returned by A* is then refined by attempting to skip nodes in the graph. Starting from the goal node and working back, the same bresenham line cost checking as mentioned earlier is used to check the line, or 'shortcut', between the goal node and the third-from-last node. If this line is found to be clear of costs then the second-from-last node is dropped from the path. This process repeats until every 'shortcut' in the path results in traversing a cell of cost.
-Finally, the refined path (green line in Figure \ref{PRM_planner}) is sent back to the move\_base node in the form of geometry\_msgs type ROS messages to be tracked by the local planner. For debugging purposes, the network is also published using visualization\_msgs type ROS messages for easy display in RViz. 
+Finally, the refined path (green line in Figure \ref{PRM_planner}) is sent back to the move\_base node in the form of geometry\_msgs type ROS messages to be tracked by the local planner. For debugging purposes, the network is also published using visualization\_msgs type ROS messages for easy display in RViz.
 
 	\begin{figure}[!ht]
 		\centering
@@ -189,7 +189,7 @@ Finally, the refined path (green line in Figure \ref{PRM_planner}) is sent back 
 
 \subsection{A* Global Planner}
 
-While the PRM method performs A* on a set of sampled points, the grid based method expands each cell from the start to the goal node based on a certain cost. The A* algorithm combines features of uniform-cost search and pure heuristic search to efficiently compute optimal solutions. A* algorithm is a best-first search algorithm in which the cost associated with a node is f(n) = g(n) + h(n), where g(n) is the cost of the path from the initial state to node n and h(n) is the heuristic estimate or the cost of the path from node n to the goal. Thus, f(n) estimates the lowest total cost of any solution path going through node n. At each point a node with lowest f value is chosen for expansion. Ties are broken randomly. The algorithm terminates when a goal is chosen for expansion. A* algorithm guides an optimal path to a goal if the heuristic function h(n) is admissible, meaning it never over-estimates the actual cost. 
+While the PRM method performs A* on a set of sampled points, the grid based method expands each cell from the start to the goal node based on a certain cost. The A* algorithm combines features of uniform-cost search and pure heuristic search to efficiently compute optimal solutions. A* algorithm is a best-first search algorithm in which the cost associated with a node is f(n) = g(n) + h(n), where g(n) is the cost of the path from the initial state to node n and h(n) is the heuristic estimate or the cost of the path from node n to the goal. Thus, f(n) estimates the lowest total cost of any solution path going through node n. At each point a node with lowest f value is chosen for expansion. Ties are broken randomly. The algorithm terminates when a goal is chosen for expansion. A* algorithm guides an optimal path to a goal if the heuristic function h(n) is admissible, meaning it never over-estimates the actual cost.
 
 \section{RESULTS}
 
@@ -203,17 +203,17 @@ A map of the third floor of Engineering 5 was completed. This map includes a 2D 
 		\caption{3D point cloud map of the third floor of E5.}
 		\label{third_point_cloud}
 	\end{figure}
-	
+
 	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=1.0\columnwidth]{Figures/3rd_occupancy_grid}
 		\caption{Occupancy grid map of the third floor of E5.}
 		\label{third_occ_grid}
 	\end{figure}
-	
+
 \subsection{Global Path Planning Comparison}
 
-The two global path planners were tested and compared using the gazebo simulation environment. Two different costmaps were used in the tests. One costmap was generated from a floorplan of the third floor of Engineering 5 and another was generated from the Husky playpen demo. The planned paths can be seen in Figure \ref{compare_combined}. The resulting timing and path lengths of the two planners are compared below in Table \ref{compare_table}.  
+The two global path planners were tested and compared using the gazebo simulation environment. Two different costmaps were used in the tests. One costmap was generated from a floorplan of the third floor of Engineering 5 and another was generated from the Husky playpen demo. The planned paths can be seen in Figure \ref{compare_combined}. The resulting timing and path lengths of the two planners are compared below in Table \ref{compare_table}.
 
 \begin{figure}[!ht]
 	\centering
@@ -237,7 +237,7 @@ The two global path planners were tested and compared using the gazebo simulatio
 \end{center}
 \end{table}
 
-While the PRM method appears to take a shorter time to generate path it should be noted that the PRM method requires a prior setup time to build the network. The network in the playpen consisted of 291 milestones and took on average 0.2 s to build while the network in the floor plan consisted of 3399 milestones and took on average 28 s to build. Another interesting result is that the PRM method occasionally returns a shorter path. This is due to the fact that the grid based A* method only looks at the 8 surrounding cells at a time. Therefore, the path is a series of smaller horizontal, vertical, or 45° segments whereas the PRM path could take a more direct path depending on the environment. One benefit of the A* method over the PRM method would be the ability to always find a path if a path exists. The PRM method is not guaranteed to find a path since it is dependant on the number of milestones available and the pre-generated network. However, the PRM performs better than A* in multi-query single map scenarios. Although the time to generate the network is significantly large, a single query on a predefined network is faster than the grid based approach.
+While the PRM method appears to take a shorter time to generate path it should be noted that the PRM method requires a prior setup time to build the network. The network in the playpen consisted of 291 milestones and took on average 0.2 s to build while the network in the floor plan consisted of 3399 milestones and took on average 28 s to build. Another interesting result is that the PRM method occasionally returns a shorter path. This is due to the fact that the grid based A* method only looks at the 8 surrounding cells at a time. Therefore, the path is a series of smaller horizontal, vertical, or 45ï¿½ segments whereas the PRM path could take a more direct path depending on the environment. One benefit of the A* method over the PRM method would be the ability to always find a path if a path exists. The PRM method is not guaranteed to find a path since it is dependant on the number of milestones available and the pre-generated network. However, the PRM performs better than A* in multi-query single map scenarios. Although the time to generate the network is significantly large, a single query on a predefined network is faster than the grid based approach.
 
 \section{CONCLUSION}
 
@@ -251,7 +251,7 @@ RTAB-Map relies on ORB detector and descriptor for recognizing features in the e
 
 While the PRM global planner performed well there are some improvements that could be made to decrease the time took to both generate and search the map. Bridge sampling is one technique that could perform well in an office building by focusing the milestones in the hallways where they are most needed. Gaussian sampling could also have a similar effect to Bridge sampling thanks to the typical geometry of office buildings.
 
-In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities. Given this sort of future direction, the ability to make a robot truly autonomous and intelligent still remains an extremely challenging problem.
+In the future there will be a need for teams of small, agile autonomous robots to perform intelligence, surveillance and reconnaissance (ISR) missions. As a result, we would like to extend the ground vehicle to communicate with aerial vehicles such as quadrotors~\cite{target}. Person following and tracking is another area of interest. In industry most robots are programmed to perform specific tasks, however, if the robot can track a \enquote*{master} it will have the ability to learn new responsibilities.
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens

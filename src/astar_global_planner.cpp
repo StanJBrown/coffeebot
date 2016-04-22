@@ -19,6 +19,7 @@
 #include "std_msgs/Header.h"
 #include <visualization_msgs/Marker.h>
 #include <nav_msgs/Path.h>
+#include <pcl_ros/publisher.h>
 
 //register this planner as a BaseGlobalPlanner plugin
 PLUGINLIB_EXPORT_CLASS(astar_cb_global_planner::AStar_CB_GlobalPlanner, nav_core::BaseGlobalPlanner)
@@ -37,6 +38,7 @@ float infinity = std::numeric_limits< float >::infinity();
 unsigned int CellMapSize;
 vector<int> finalPath;
 multiset<cellInfo,comp> frontier;
+ros::Time astar_runtime;
 
 // Publish visualization markers
 ros::NodeHandle n;
@@ -74,6 +76,8 @@ namespace astar_cb_global_planner {
             cellArrayHeight = CMheight;
           	CellMapSize = cellArrayWidth*cellArrayHeight;
 
+            plan_pub = n.advertise<nav_msgs::Path>("planB", 1);
+
             cout << "CMwidth: " << CMwidth << " CMheight: " << CMheight << endl;
             cout << "CellArraywidth: " << cellArrayWidth << " CellArrayheight: " << cellArrayHeight << endl;
             cout << "originX: " << CMoriginX << " originY: " << CMoriginY <<endl;
@@ -100,7 +104,7 @@ namespace astar_cb_global_planner {
             MyExcelFile << "StartID\tStartX\tStartY\tGoalID\tGoalX\tGoalY\tPlannertime(ms)\tpathLength\tnumberOfCells\t" << endl;
             ROS_INFO(" ##### AStar CB planner initialized successfully");
 
-            plan_pub = n.advertise<nav_msgs::Path>("visualize_path", 10);
+            //plan_pub = n.advertise<nav_msgs::Path>("visualize_path", 10);
             //ros::Rate r(30);
             // Indicate finished initialization
             CMinitialized_ = true;
@@ -192,9 +196,9 @@ namespace astar_cb_global_planner {
             displayRowCol(goalCellIdx);
             //letsSleep();
             //letsSleep();
-            ros::Time astar_runtime = ros::Time::now();
+            astar_runtime = ros::Time::now();
             if(AStarPlanner(startCellIdx,goalCellIdx)){ // Call Astar here. If Astar returns true we have a plan
-                cout << "Astar found a path in " << ros::Time::now()-astar_runtime << endl;
+                //cout << "Astar found a path in " << ros::Time::now()-astar_runtime << endl;
                 ROS_INFO("##### Astar found a path");
                 //plan = finalPath;
                 float x,y;
@@ -214,6 +218,16 @@ namespace astar_cb_global_planner {
                 }
                 //letsSleep();
                 //letsSleep();
+                cout << "Astar found a path in " << ros::Time::now()-astar_runtime << " seconds"<< endl;
+                nav_msgs::Path rvizPath;
+                rvizPath.poses.resize(plan.size());
+                rvizPath.header.frame_id = plan[0].header.frame_id;
+                rvizPath.header.stamp = plan[0].header.stamp;
+                for(unsigned int i=0; i < plan.size(); i++)
+                {
+                    rvizPath.poses[i] = plan[i];
+                }
+                plan_pub.publish(rvizPath);
                 return true;
             }
             else{
@@ -265,8 +279,10 @@ namespace astar_cb_global_planner {
             }
             visited[curr_cellIdx] = 1;
             cameFromCellArray[curr_cellIdx] = curr_cameFrom;
-            if(curr_cellIdx == goalCellIdx)
+            if(curr_cellIdx == goalCellIdx){
+                cout << "Distance to reach goal " << curr_cost*CMresolution  << " meters"<< endl;
                 break;
+            }
             for(int i=-1; i<=1; i++){
                 for(int j=-1; j<=1; j++){
                     int neighbor_RowID = curr_rowID+i;

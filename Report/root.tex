@@ -196,7 +196,14 @@ A map of the third floor of Engineering 5 was completed. This map includes a 2D 
 	
 \subsection{Global Path Planning Comparison}
 
-The two global path planners were tested and compared using the gazebo simulation environment. Two different costmaps were used in the tests. One costmap was generated from a floorplan of the third floor of Engineering 5 and another was generated from the Husky playpen demo. The resulting timing and path lengths of the two planners are compared below in Table \ref{compare_table}.  
+The two global path planners were tested and compared using the gazebo simulation environment. Two different costmaps were used in the tests. One costmap was generated from a floorplan of the third floor of Engineering 5 and another was generated from the Husky playpen demo. The planned paths can be seen in Figure \ref{compare_combined}. The resulting timing and path lengths of the two planners are compared below in Table \ref{compare_table}.  
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=1.0\columnwidth]{Figures/compare_combined}
+	\caption{The paths planned through the floor plan (a) and the Husky playpen (b).}
+	\label{compare_combined}
+\end{figure}
 
 \begin{table}[h]
 \caption{The comparison results of the two global path planners tested on two different environments.}
@@ -214,6 +221,7 @@ The two global path planners were tested and compared using the gazebo simulatio
 \end{center}
 \end{table}
 
+While the PRM method appears to take a shorter time to generate path it should be noted that the PRM method requires a prior setup time to build the network. The network in the playpen consisted of 291 milestones and took on average 0.2 s to build while the network in the floor plan consisted of 3399 milestones and took on average 28 s to build. Another interesting result is that the PRM method tends to return shorter paths. This is due to the fact that the grid based A* method only looks at the 8 surrounding cells at a time. Therefore, the path is a series of smaller horizontal, vertical, or 45° segments whereas the PRM path could take a more direct path depending on the environment. One benefit of the A* method over the PRM method would be the ability to always find a path if a path exists. The PRM method is not guaranteed to find a path since it is dependant on the number of milestones available and the pre-generated network. However, the PRM performs better than A* in multi-query single map scenarios. Although the time to generate the network is significantly large, a single query on a predefined network is faster than the grid based approach.
 
 \section{CONCLUSION}
 
